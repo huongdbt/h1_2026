@@ -1720,18 +1720,24 @@ PHASE 7 — RETRO
 </div>
 
 <script>
-  function showPage(id) {
-    // Save current scroll position of main page before leaving
+  // ── HASH ROUTING ──
+  const VALID_PAGES = ['main', 'obj01', 'obj02', 'obj03'];
+
+  function showPage(id, pushState) {
+    if (!VALID_PAGES.includes(id)) id = 'main';
+
+    // Save main scroll before leaving
     if (id !== 'main') {
       const mainPage = document.getElementById('page-main');
       if (mainPage && mainPage.classList.contains('active')) {
         sessionStorage.setItem('main-scroll', window.scrollY);
       }
     }
+
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + id).classList.add('active');
+
     if (id === 'main') {
-      // Restore saved scroll position
       const savedY = sessionStorage.getItem('main-scroll');
       if (savedY) {
         requestAnimationFrame(() => window.scrollTo({ top: parseInt(savedY), behavior: 'instant' }));
@@ -1741,6 +1747,13 @@ PHASE 7 — RETRO
     } else {
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
+
+    // Update URL hash (pushState = true when user navigates, false when browser Back/Forward)
+    if (pushState !== false) {
+      const hash = id === 'main' ? '#' : '#' + id;
+      history.pushState({ page: id }, '', hash);
+    }
+
     setTimeout(triggerReveals, 80);
   }
 
@@ -1748,8 +1761,7 @@ PHASE 7 — RETRO
     const currentPage = document.querySelector('.page.active');
     const isAlreadyMain = currentPage && currentPage.id === 'page-main';
     if (!isAlreadyMain) {
-      // save scroll before leaving sub-page
-      sessionStorage.removeItem('main-scroll'); // navigating intentionally, go to section
+      sessionStorage.removeItem('main-scroll');
       showPage(pageId);
       setTimeout(() => {
         const el = document.getElementById(sectionId);
@@ -1759,6 +1771,25 @@ PHASE 7 — RETRO
       const el = document.getElementById(sectionId);
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  // Browser Back / Forward button
+  window.addEventListener('popstate', (e) => {
+    const id = (e.state && e.state.page) ? e.state.page : getPageFromHash();
+    showPage(id, false); // false = don't pushState again
+  });
+
+  function getPageFromHash() {
+    const hash = window.location.hash.replace('#', '');
+    return VALID_PAGES.includes(hash) ? hash : 'main';
+  }
+
+  // Init: read hash on first load
+  function initPage() {
+    const id = getPageFromHash();
+    // Replace initial history state so Back works from first page too
+    history.replaceState({ page: id }, '', window.location.hash || '#');
+    showPage(id, false);
   }
 
   function triggerReveals() {
@@ -1844,7 +1875,7 @@ PHASE 7 — RETRO
   function exportPortfolio() { _downloadHTML(); }
 
   loadSavedSOPs();
-  triggerReveals();
+  initPage();
 </script>
 </body>
 </html>
