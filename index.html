@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="googlebot" content="noindex, nofollow">
+<title>HuongDBT — UI/UX × Product</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d; --paper: #f5f0e8; --cream: #ece6d6;
+    --accent: #c84b2f; --accent2: #2563a8; --green: #2d9f6e;
+    --muted: #6b6560; --rule: rgba(13,13,13,0.12); --tag-bg: rgba(13,13,13,0.07);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.5; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 3rem; background: rgba(245,240,232,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--rule); }
+  .nav-logo { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
+  .nav-logo:hover { color: var(--accent); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; color: var(--muted); transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-badge { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.3rem 0.9rem; border: 1px solid var(--ink); text-transform: uppercase; color: var(--ink); }
+
+  .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; padding-top: 80px; }
+  .hero-left { padding: 5rem 3rem 4rem; display: flex; flex-direction: column; justify-content: center; border-right: 1px solid var(--rule); }
+  .hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.2s; }
+  .hero-name { font-family: 'DM Serif Display', serif; font-size: clamp(3.5rem, 6vw, 5.5rem); line-height: 1.0; letter-spacing: -0.02em; margin-bottom: 0.5rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.4s; }
+  .hero-name em { font-style: italic; color: var(--accent); }
+  .hero-title-line { font-family: 'DM Mono', monospace; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 2.5rem; display: flex; align-items: center; gap: 0.8rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.55s; }
+  .hero-title-line::before { content: ''; display: inline-block; width: 2rem; height: 1px; background: var(--muted); }
+  .hero-desc { font-size: 1rem; line-height: 1.8; color: var(--muted); max-width: 44ch; margin-bottom: 3rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.7s; }
+  .hero-desc strong { color: var(--ink); font-weight: 600; }
+  .hero-cta { display: flex; gap: 1rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.85s; }
+  .btn-primary { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.9rem 2rem; background: var(--ink); color: var(--paper); text-decoration: none; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s; display: inline-block; }
+  .btn-primary:hover { background: var(--accent); transform: translateY(-2px); }
+  .btn-outline { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.9rem 2rem; background: transparent; color: var(--ink); border: 1px solid var(--ink); text-decoration: none; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn-outline:hover { background: var(--ink); color: var(--paper); transform: translateY(-2px); }
+
+  .hero-right { padding: 5rem 3rem 4rem; display: flex; flex-direction: column; justify-content: center; gap: 2rem; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); opacity: 0; animation: fadeUp 0.8s ease forwards 0.9s; }
+  .stat-cell { background: var(--paper); padding: 1.8rem; transition: background 0.2s; cursor: pointer; }
+  .stat-cell:hover { background: var(--cream); }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 3rem; line-height: 1; color: var(--ink); margin-bottom: 0.4rem; }
+  .stat-num span { color: var(--accent); }
+  .stat-label { font-family: 'DM Mono', monospace; font-size: 0.63rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); line-height: 1.4; }
+  .stat-hint { font-family: 'DM Mono', monospace; font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-top: 0.4rem; }
+  .role-context { background: var(--cream); padding: 1.5rem 2rem; border-left: 3px solid var(--accent); opacity: 0; animation: fadeUp 0.8s ease forwards 1.1s; }
+  .role-context p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+  .role-context strong { color: var(--ink); }
+
+  section { padding: 5rem 3rem; border-top: 1px solid var(--rule); }
+  .section-header { display: flex; align-items: baseline; gap: 1.5rem; margin-bottom: 3.5rem; }
+  .section-num { font-family: 'DM Mono', monospace; font-size: 0.63rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 3.5vw, 3rem); line-height: 1.1; letter-spacing: -0.02em; }
+  .section-title em { font-style: italic; color: var(--accent); }
+
+  .objectives-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .obj-card { background: var(--paper); padding: 2.5rem 2rem; transition: background 0.2s; display: flex; flex-direction: column; }
+  .obj-card:hover { background: var(--cream); }
+  .obj-num { font-family: 'DM Mono', monospace; font-size: 0.63rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 1rem; }
+  .obj-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .obj-title { font-family: 'DM Serif Display', serif; font-size: 1.25rem; line-height: 1.3; margin-bottom: 1rem; letter-spacing: -0.01em; }
+  .obj-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; flex: 1; }
+  .obj-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+  .tag { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.25rem 0.6rem; background: var(--tag-bg); color: var(--muted); border: 1px solid var(--rule); }
+  .tag.hi { background: var(--accent); color: white; border-color: var(--accent); }
+  .obj-progress { margin-bottom: 1.5rem; }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; display: flex; justify-content: space-between; }
+  .progress-bar { height: 3px; background: var(--cream); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 1.5s cubic-bezier(0.4,0,0.2,1); width: 0; }
+  .progress-fill.animated { width: var(--target-width); }
+  .obj-cta { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.7rem 1.2rem; background: transparent; border: 1px solid var(--ink); color: var(--ink); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; align-self: flex-start; }
+  .obj-cta:hover { background: var(--ink); color: var(--paper); }
+
+  .proof-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .proof-panel { background: var(--paper); padding: 2.5rem; }
+  .proof-panel.dark { background: var(--ink); color: var(--paper); }
+  .proof-panel-title { font-family: 'DM Mono', monospace; font-size: 0.63rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--rule); }
+  .proof-panel.dark .proof-panel-title { color: rgba(245,240,232,0.4); border-color: rgba(245,240,232,0.1); }
+  .po-task-list { list-style: none; display: flex; flex-direction: column; }
+  .po-task-list li { padding: 1rem 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; font-size: 0.88rem; }
+  .po-task-list li:last-child { border-bottom: none; }
+  .task-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .task-name { color: var(--ink); font-weight: 500; }
+  .task-source { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0.2rem 0.5rem; border: 1px solid var(--rule); white-space: nowrap; }
+  .jd-match-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+  .jd-match-list li { padding: 1rem 1.2rem; border-left: 3px solid rgba(200,75,47,0.3); background: rgba(200,75,47,0.06); font-size: 0.84rem; line-height: 1.6; color: rgba(245,240,232,0.75); transition: border-color 0.2s; }
+  .jd-match-list li:hover { border-color: var(--accent); }
+  .jd-match-list li strong { display: block; color: var(--paper); font-size: 0.72rem; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.3rem; }
+
+  .agent-showcase { display: grid; grid-template-columns: 1fr 1.5fr; gap: 4rem; align-items: start; }
+  .agent-title { font-family: 'DM Serif Display', serif; font-size: 1.8rem; line-height: 1.2; margin-bottom: 1rem; }
+  .agent-desc { font-size: 0.92rem; color: var(--muted); line-height: 1.75; margin-bottom: 1.5rem; }
+  .agent-caps { display: flex; flex-direction: column; gap: 0.9rem; margin-bottom: 2rem; }
+  .cap-item { display: flex; align-items: flex-start; gap: 0.8rem; font-size: 0.88rem; }
+  .cap-icon { font-size: 1rem; margin-top: 0.1rem; flex-shrink: 0; }
+  .cap-text strong { display: block; font-weight: 600; font-size: 0.84rem; }
+  .cap-text small { color: var(--muted); font-size: 0.78rem; }
+  .terminal { background: #0f1117; border: 1px solid rgba(255,255,255,0.08); font-family: 'DM Mono', monospace; font-size: 0.78rem; overflow: hidden; }
+  .terminal-header { background: #1a1d27; padding: 0.7rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; } .dot.y { background: #febc2e; } .dot.g { background: #28c840; }
+  .terminal-title { margin-left: auto; font-size: 0.58rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+  .terminal-body { padding: 1.5rem; line-height: 2.1; color: #c8d3e3; min-height: 300px; }
+  .t-prompt { color: #7c87a0; } .t-cmd { color: #7dd3fc; } .t-out { color: #86efac; }
+  .t-label { color: #fbbf24; } .t-val { color: #e2e8f0; } .t-muted { color: rgba(200,211,227,0.4); }
+  .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .evidence-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-bottom: 3rem; }
+  .ev-cell { background: var(--paper); padding: 2rem 1.5rem; text-align: center; transition: background 0.2s; }
+  .ev-cell:hover { background: var(--cream); }
+  .ev-cell a { text-decoration: none; color: inherit; display: block; }
+  .ev-num { font-family: 'DM Serif Display', serif; font-size: 2.6rem; line-height: 1; color: var(--ink); margin-bottom: 0.5rem; }
+  .ev-num sup { font-size: 1rem; color: var(--accent); }
+  .ev-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); line-height: 1.4; }
+  .ev-hint { font-family: 'DM Mono', monospace; font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-top: 0.4rem; }
+  .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .comp-cell { background: var(--paper); padding: 2rem; transition: background 0.2s; }
+  .comp-cell:hover { background: var(--cream); }
+  .comp-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.8rem; }
+  .comp-val { font-family: 'DM Serif Display', serif; font-size: 1.15rem; margin-bottom: 1rem; letter-spacing: -0.01em; }
+  .skill-bar-row { display: flex; flex-direction: column; gap: 0.7rem; }
+  .skill-item { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0.8rem; font-size: 0.8rem; }
+  .skill-track { height: 2px; background: var(--cream); grid-column: 1/-1; }
+  .skill-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 1.5s cubic-bezier(0.4,0,0.2,1); width: 0; }
+  .skill-fill.animated { width: var(--target-width); }
+  .skill-lv { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.06em; color: var(--muted); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 0.6rem; bottom: 0; width: 1px; background: var(--rule); }
+  .tl-item { position: relative; padding-bottom: 2.5rem; padding-left: 1.5rem; }
+  .tl-item::before { content: ''; position: absolute; left: -2rem; top: 0.5rem; width: 9px; height: 9px; border-radius: 50%; background: var(--paper); border: 2px solid var(--accent); }
+  .tl-date { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+  .tl-title { font-weight: 600; font-size: 0.92rem; margin-bottom: 0.3rem; }
+  .tl-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+  footer { padding: 3rem; border-top: 1px solid var(--rule); display: flex; align-items: center; justify-content: space-between; }
+
+  /* RESULT PAGES */
+  .result-page { padding-top: 80px; min-height: 100vh; }
+  .result-hero { padding: 4rem 3rem 3rem; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 2rem; }
+  .result-breadcrumb { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .result-breadcrumb:hover { color: var(--accent); }
+  .result-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; }
+  .result-title { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .result-title em { font-style: italic; color: var(--accent); }
+  .result-subtitle { font-size: 1rem; color: var(--muted); line-height: 1.7; max-width: 56ch; }
+  .status-badge { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 1.2rem; border: 1px solid; white-space: nowrap; align-self: flex-start; margin-top: 3.5rem; }
+  .badge-done { border-color: var(--green); color: var(--green); }
+  .badge-wip { border-color: var(--accent2); color: var(--accent2); }
+  .result-body { padding: 3rem; }
+  .r-section { margin-bottom: 3.5rem; }
+  .r-section-title { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--rule); }
+  .okr-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .okr-table th { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 0.8rem 1rem; text-align: left; background: var(--cream); border-bottom: 1px solid var(--rule); }
+  .okr-table td { padding: 1rem; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.55; }
+  .okr-table tr:hover td { background: var(--cream); }
+  .okr-table td:first-child { font-weight: 600; width: 32%; }
+  .sd { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.2rem 0.6rem; background: var(--green); color: white; white-space: nowrap; }
+  .sw { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.2rem 0.6rem; background: var(--accent2); color: white; white-space: nowrap; }
+  .sp { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.2rem 0.6rem; border: 1px solid var(--muted); color: var(--muted); white-space: nowrap; }
+  .ev-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .ev-card { background: var(--paper); padding: 1.8rem; }
+  .ev-card-num { font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: var(--ink); margin-bottom: 0.3rem; }
+  .ev-card-num s2 { color: var(--accent); font-size: 1.2rem; }
+  .ev-card-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .ev-card-desc { font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem; line-height: 1.5; }
+  .lg { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .lc { padding: 1.5rem; border-left: 3px solid var(--accent); background: rgba(200,75,47,0.04); }
+  .lc.b { border-color: var(--accent2); background: rgba(37,99,168,0.04); }
+  .lc.g { border-color: var(--green); background: rgba(45,159,110,0.04); }
+  .lc.p { border-color: #8b5cf6; background: rgba(139,92,246,0.04); }
+  .lc-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+  .lc.b .lc-label { color: var(--accent2); } .lc.g .lc-label { color: var(--green); } .lc.p .lc-label { color: #8b5cf6; }
+  .lc-text { font-size: 0.86rem; line-height: 1.6; color: var(--ink); }
+  .r-footer { padding: 2rem 3rem; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* SOP Editor styles */
+  .sop-block { margin-bottom: 0.8rem; border: 1px solid var(--rule); overflow: hidden; }
+  .sop-block-label {
+    font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: white; padding: 0.5rem 1rem;
+  }
+  .sop-field {
+    padding: 1rem 1.2rem; font-size: 0.84rem; line-height: 1.75;
+    color: var(--ink); min-height: 60px; white-space: pre-wrap;
+    outline: none; transition: background 0.15s;
+    font-family: 'Instrument Sans', sans-serif;
+  }
+  .sop-field:focus { background: rgba(37,99,168,0.04); box-shadow: inset 3px 0 0 var(--accent2); }
+  .sop-field:hover { background: var(--cream); }
+
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; } .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { border-right: none; padding: 4rem 1.5rem 2rem; } .hero-right { padding: 2rem 1.5rem; }
+    .objectives-grid { grid-template-columns: 1fr; } .proof-layout { grid-template-columns: 1fr; }
+    .agent-showcase { grid-template-columns: 1fr; gap: 2rem; }
+    .evidence-strip { grid-template-columns: 1fr 1fr; } .comp-grid { grid-template-columns: 1fr; }
+    section { padding: 3.5rem 1.5rem; }
+    footer, .r-footer { flex-direction: column; gap: 1rem; }
+    .result-hero { grid-template-columns: 1fr; } .ev-cards { grid-template-columns: 1fr 1fr; } .lg { grid-template-columns: 1fr; }
+    .result-body { padding: 2rem 1.5rem; }
+  }
+
+</style>
+</head>
+<body>
+
+<!-- EDIT TOOLBAR REMOVED -->
+
+<nav>
+  <span class="nav-logo" onclick="showPage('main')">HuongDBT / Tech & Product</span>
+  <ul class="nav-links">
+    <li><a href="#objectives" onclick="navTo('main','objectives');return false;">Objectives</a></li>
+    <li><a href="#dual-role" onclick="navTo('main','dual-role');return false;">Dual Role</a></li>
+    <li><a href="#ai-agent" onclick="navTo('main','ai-agent');return false;">AI Agent</a></li>
+    <li><a href="#competency" onclick="navTo('main','competency');return false;">Competency</a></li>
+  </ul>
+  <span class="nav-badge">G3 → G4 Expert</span>
+</nav>
+
+<!-- ══ MAIN PAGE ══ -->
+<div id="page-main" class="page active">
+
+<section class="hero" style="border-top:none;padding:0;">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Ecomobi · Tech & Product · H1 2026</p>
+    <h1 class="hero-name">Huong<br><em>DBT</em></h1>
+    <div class="hero-title-line">UI/UX Designer × PO / BA</div>
+    <p class="hero-desc">
+      Design Partner của Tech &amp; Product,
+      <strong>đồng thời bổ sung vai trò PO/BA trong quá trình vận hành team</strong> cho Creator Product —
+      tiếp nhận yêu cầu, phân tích, viết user story và UAT sản phẩm.
+    </p>
+    <div class="hero-cta">
+      <a href="#competency" class="btn-primary" onclick="showPage('main'); setTimeout(()=>document.getElementById('competency').scrollIntoView({behavior:'smooth'}),50); return false;">Xem Kết Quả</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="stat-grid">
+      <div class="stat-cell" onclick="showPage('obj01')">
+        <div class="stat-num">✓</div>
+        <div class="stat-label">SSoT Antigravity<br>đã ship</div>
+        <div class="stat-hint">Xem chi tiết →</div>
+      </div>
+      <div class="stat-cell" onclick="showPage('obj02')">
+        <div class="stat-num">1</div>
+        <div class="stat-label">AI Agent<br>tự xây dựng</div>
+        <div class="stat-hint">Xem chi tiết →</div>
+      </div>
+      <div class="stat-cell" onclick="showPage('obj03')">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Strategic objectives<br>H1 2026</div>
+        <div class="stat-hint">Xem chi tiết →</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">2<span>+</span></div>
+        <div class="stat-label">Vai trò đóng góp<br>song song</div>
+      </div>
+    </div>
+    <div class="role-context">
+      <p>Chủ động lấp đầy khoảng trống nhân sự trong bối cảnh dự án <strong>thiếu vị trí PO/BA</strong>. Trực tiếp điều phối và thực hiện các tác vụ quản trị sản phẩm để đảm bảo delivery không bị gián đoạn, vừa bảo vệ được tiến độ dự án, <strong>vừa mở rộng đáng kể tầm nhìn và kỹ năng thực chiến</strong> của bản thân.</p>
+    </div>
+  </div>
+</section>
+
+<!-- OBJECTIVES -->
+<section id="objectives">
+  <div class="section-header reveal">
+    <span class="section-num">01 / 04</span>
+    <h2 class="section-title">Strategic <em>Objectives</em><br>H1 2026</h2>
+  </div>
+  <div class="objectives-grid">
+    <div class="obj-card reveal">
+      <div class="obj-num">OBJ 01</div>
+      <div class="obj-icon">🔗</div>
+      <h3 class="obj-title">Single Source of Truth — Antigravity</h3>
+      <p class="obj-desc">Phối hợp cùng Dev team thiết lập và tích hợp thành công hệ thống Single Source trên nền tảng Antigravity cho Creator Passio. Đồng bộ hoá toàn diện kiến thức chuyên môn và tài nguyên thiết kế trong H1/2026.</p>
+      <div class="obj-tags">
+        <span class="tag hi">✓ Đã hoàn thành</span>
+        <span class="tag">Design System</span>
+        <span class="tag">Dev Collaboration</span>
+        <span class="tag">Antigravity</span>
+      </div>
+      <div class="obj-progress">
+        <div class="progress-label"><span>Tiến độ</span><span>Đang thử nghiệm tích hợp từ tháng 2/2026</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="--target-width:75%"></div></div>
+      </div>
+      <button class="obj-cta" onclick="showPage('obj01')">Xem kết quả chi tiết →</button>
+    </div>
+    <div class="obj-card reveal">
+      <div class="obj-num">OBJ 02</div>
+      <div class="obj-icon">🤖</div>
+      <h3 class="obj-title">AI Feasibility & Integration Roadmap</h3>
+      <p class="obj-desc">Thẩm định và đánh giá tiềm năng ứng dụng AI trong quy trình thiết kế. Hoàn thiện báo cáo phân tích rủi ro và tính khả thi, đề xuất lộ trình tích hợp thực tế vào H1/2026.</p>
+      <div class="obj-tags">
+        <span class="tag">AI Integration</span>
+        <span class="tag">Risk Analysis</span>
+        <span class="tag">Feasibility</span>
+        <span class="tag">Process Design</span>
+      </div>
+      <div class="obj-progress">
+        <div class="progress-label"><span>Tiến độ</span><span>100%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="--target-width:100%"></div></div>
+      </div>
+      <button class="obj-cta" onclick="showPage('obj02')">Xem kết quả chi tiết →</button>
+    </div>
+    <div class="obj-card reveal">
+      <div class="obj-num">OBJ 03</div>
+      <div class="obj-icon">📋</div>
+      <h3 class="obj-title">Design Audit SOP System</h3>
+      <p class="obj-desc">Chuẩn hoá và hệ thống hoá quy trình Design Audit thông qua bộ SOPs chi tiết. Đảm bảo chất lượng đầu ra đồng bộ và rút ngắn thời gian đào tạo chuyên môn cho nhân sự mới.</p>
+      <div class="obj-tags">
+        <span class="tag">SOPs</span>
+        <span class="tag">Design Audit</span>
+        <span class="tag">Quality</span>
+        <span class="tag">Onboarding</span>
+      </div>
+      <div class="obj-progress">
+        <div class="progress-label"><span>Tiến độ</span><span>100%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="--target-width:100%"></div></div>
+      </div>
+      <button class="obj-cta" onclick="showPage('obj03')">Xem kết quả chi tiết →</button>
+    </div>
+  </div>
+</section>
+
+<!-- DUAL ROLE -->
+<section id="dual-role">
+  <div class="section-header reveal">
+    <span class="section-num">02 / 04</span>
+    <h2 class="section-title">Dual Role <em>Proof</em><br>UI/UX × PO/BA</h2>
+  </div>
+  <div class="proof-layout reveal">
+    <div class="proof-panel">
+      <div class="proof-panel-title">Công việc thực tế khi vận hành Team</div>
+      <ul class="po-task-list">
+        <li><div class="task-dot"></div><span class="task-name">Tiếp nhận &amp; phân tích yêu cầu từ stakeholders</span><span class="task-source">Solve problems</span></li>
+        <li><div class="task-dot"></div><span class="task-name">Chuyển hoá yêu cầu thành User Story &amp; AC</span><span class="task-source">Decision making</span></li>
+        <li><div class="task-dot"></div><span class="task-name">Duy trì &amp; ưu tiên hoá Product Backlog</span><span class="task-source">Set goals &amp; plan</span></li>
+        <li><div class="task-dot"></div><span class="task-name">Thực hiện UAT — kiểm thử chấp nhận sản phẩm</span><span class="task-source">Follow up &amp; implement</span></li>
+        <li><div class="task-dot"></div><span class="task-name">Tham gia Agile Ceremonies cùng Dev team</span><span class="task-source">Active teamwork</span></li>
+        <li><div class="task-dot"></div><span class="task-name">Research thị trường bằng AI Agent tự xây dựng</span><span class="task-source">Innovation</span></li>
+        <li><div class="task-dot"></div><span class="task-name">Chủ động phân tích gap & đề xuất tính năng mới trước khi được yêu cầu</span><span class="task-source">Innovation</span></li>
+        <li><div class="task-dot"></div><span class="task-name">Thiết kế UI/UX toàn bộ Creator Product</span><span class="task-source">Project management</span></li>
+      </ul>
+    </div>
+    <div class="proof-panel dark">
+      <div class="proof-panel-title">Đối chiếu với JD Product Owner · Ecomobi</div>
+      <ul class="jd-match-list">
+        <li><strong>Define &amp; manage product roadmap aligned with OKRs</strong>Duy trì backlog và phân tích yêu cầu theo business priority cho Creator Product.</li>
+        <li><strong>Lead product discovery &amp; requirements gathering</strong>Tiếp nhận trực tiếp từ stakeholders, phân tích và chuyển hoá thành user story.</li>
+        <li><strong>Collaborate with UI/UX designers</strong>Đồng thời là Designer — hiểu sâu cả hai phía, không có khoảng cách dịch thuật.</li>
+        <li><strong>Work closely with dev teams to deliver features</strong>Phối hợp cùng Dev team xây dựng thành công Single Source trên Antigravity.</li>
+        <li><strong>Hands-on experience with AI in products</strong>Tự xây dựng AI Agent phục vụ PO workflow — market research và US generation.</li>
+        <li><strong>Facilitate agile &amp; maintain delivery momentum</strong>Tham gia ceremonies, viết AC, thực hiện UAT sản phẩm — duy trì momentum khi vị trí PO trống.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- AI AGENT -->
+<section id="ai-agent">
+  <div class="section-header reveal">
+    <span class="section-num">03 / 04</span>
+    <h2 class="section-title"><em>AI Agent</em> tự xây dựng<br>cho PO Workflow</h2>
+  </div>
+  <div class="agent-showcase">
+    <div class="agent-info reveal">
+      <h3 class="agent-title">PO Research &amp; User Story Agent</h3>
+      <p class="agent-desc">Nhận thấy nhu cầu thực tế khi team khuyết thiếu vị trí PO/BA, tôi đã tự thiết kế và xây dựng một AI Agent chuyên biệt — giúp tự động hoá việc research thị trường và hỗ trợ generate User Story/ PRD chất lượng hơn.</p>
+      <div class="agent-caps">
+        <div class="cap-item"><span class="cap-icon">🔍</span><div class="cap-text"><strong>Market Research Automation</strong><small>Thu thập và tổng hợp thông tin thị trường, trends, competitor landscape</small></div></div>
+        <div class="cap-item"><span class="cap-icon">📝</span><div class="cap-text"><strong>User Story Generation</strong><small>Generate US/ PRD với AC và definition of done theo Agile standard</small></div></div>
+        <div class="cap-item"><span class="cap-icon">⚡</span><div class="cap-text"><strong>Context-aware cho Creator Product</strong><small>Được định hướng với domain knowledge của Ecomobi Creator ecosystem</small></div></div>
+        <div class="cap-item"><span class="cap-icon">🔄</span><div class="cap-text"><strong>Tích hợp vào Design &amp; PO workflow</strong><small>Rút ngắn thời gian research, tập trung vào phân tích và ra quyết định</small></div></div>
+      </div>
+      <div class="obj-tags">
+        <span class="tag hi">Self-built</span>
+        <span class="tag">AI / LLM</span>
+        <span class="tag">Product Strategy</span>
+        <span class="tag">Automation</span>
+        <span class="tag">Innovation</span>
+      </div>
+    </div>
+    <div class="terminal reveal">
+      <div class="terminal-header">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="terminal-title">PO-Agent · Creator Product</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-prompt">→ </span><span class="t-cmd">agent.research("Creator monetization trends SEA 2026")</span></div>
+        <div class="t-muted">  Scanning sources...</div><br>
+        <div><span class="t-label">MARKET INSIGHT</span></div>
+        <div><span class="t-val">  ↳ Short-form video monetization +38% YoY in VN</span></div>
+        <div><span class="t-val">  ↳ AI-assisted content creation adoption: 61% creators</span></div>
+        <div><span class="t-val">  ↳ Competitor gap identified: real-time analytics</span></div><br>
+        <div><span class="t-prompt">→ </span><span class="t-cmd">agent.generateUS("real-time earnings dashboard")</span></div><br>
+        <div><span class="t-out">✓ User Story generated</span></div>
+        <div class="t-muted">  ──────────────────────</div>
+        <div><span class="t-val">  As a Creator on Passio</span></div>
+        <div><span class="t-val">  I want to view real-time earnings by content</span></div>
+        <div><span class="t-val">  So that I can optimise my posting strategy</span></div><br>
+        <div><span class="t-label">AC (5 criteria generated)</span></div>
+        <div><span class="t-val">  ✓ Given/When/Then format</span></div>
+        <div><span class="t-val">  ✓ Edge cases covered</span></div>
+        <div><span class="t-val">  ✓ Definition of Done attached</span></div><br>
+        <div><span class="t-prompt">→ </span><span class="t-muted">_<span class="blink">|</span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPETENCY -->
+<section id="competency">
+  <div class="section-header reveal">
+    <span class="section-num">04 / 04</span>
+    <h2 class="section-title">Competency<br><em>Assessment</em> G4</h2>
+  </div>
+  <div class="evidence-strip reveal">
+    <div class="ev-cell"><a href="#" onclick="showPage('obj01');return false;"><div class="ev-num">✓</div><div class="ev-label">SSoT Antigravity<br>đã ship</div><div class="ev-hint">Xem kết quả →</div></a></div>
+    <div class="ev-cell"><a href="#" onclick="showPage('obj02');return false;"><div class="ev-num">1</div><div class="ev-label">AI Agent<br>tự xây dựng</div><div class="ev-hint">Xem kết quả →</div></a></div>
+    <div class="ev-cell"><a href="#" onclick="showPage('obj03');return false;"><div class="ev-num">3</div><div class="ev-label">Strategic OBJs<br>H1/2026</div><div class="ev-hint">Xem kết quả →</div></a></div>
+    <div class="ev-cell"><div class="ev-num">6<sup>+</sup></div><div class="ev-label">PO/BA tasks<br>đóng góp</div></div>
+  </div>
+  <div class="comp-grid reveal">
+    <div class="comp-cell">
+      <div class="comp-label">🎯 Work Management</div>
+      <div class="comp-val">Đặt mục tiêu · Giải quyết vấn đề · Ra quyết định</div>
+      <div class="skill-bar-row">
+        <div class="skill-item"><span>Tự quản lý đa nhiệm, chủ động không cần giám sát</span><span class="skill-lv">L4</span></div>
+        <div class="skill-track"><div class="skill-fill" style="--target-width:85%"></div></div>
+        <div class="skill-item"><span>Phân tích requirement → User Story độc lập</span><span class="skill-lv">L4</span></div>
+        <div class="skill-track"><div class="skill-fill" style="--target-width:83%"></div></div>
+      </div>
+    </div>
+    <div class="comp-cell">
+      <div class="comp-label">🔧 Project Management</div>
+      <div class="comp-val">Theo dõi &amp; thực thi · End-to-end delivery</div>
+      <div class="skill-bar-row">
+        <div class="skill-item"><span>Phối hợp Dev — SSoT Antigravity ship thành công</span><span class="skill-lv">L4</span></div>
+        <div class="skill-track"><div class="skill-fill" style="--target-width:88%"></div></div>
+        <div class="skill-item"><span>Agile ceremonies, backlog management, UAT</span><span class="skill-lv">L3</span></div>
+        <div class="skill-track"><div class="skill-fill" style="--target-width:75%"></div></div>
+      </div>
+    </div>
+    <div class="comp-cell">
+      <div class="comp-label">💡 Growth Hacking · Innovation</div>
+      <div class="comp-val">Work SMART · Đổi mới quy trình</div>
+      <div class="skill-bar-row">
+        <div class="skill-item"><span>Tự xây dựng AI Agent giải quyết nhu cầu thực tế</span><span class="skill-lv">L5</span></div>
+        <div class="skill-track"><div class="skill-fill" style="--target-width:92%"></div></div>
+        <div class="skill-item"><span>Tối ưu hoá output với nguồn lực đơn lẻ</span><span class="skill-lv">L4</span></div>
+        <div class="skill-track"><div class="skill-fill" style="--target-width:85%"></div></div>
+      </div>
+    </div>
+    <div class="comp-cell">
+      <div class="comp-label">🤝 Communication · Active Teamwork</div>
+      <div class="comp-val">Cross-functional · Stakeholder alignment</div>
+      <div class="skill-bar-row">
+        <div class="skill-item"><span>Phối hợp trực tiếp Dev, Business, Stakeholders</span><span class="skill-lv">L3</span></div>
+        <div class="skill-track"><div class="skill-fill" style="--target-width:78%"></div></div>
+        <div class="skill-item"><span>Chuyển hoá business context → UI/UX decisions</span><span class="skill-lv">L4</span></div>
+        <div class="skill-track"><div class="skill-fill" style="--target-width:85%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:4rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;">
+    <div class="reveal">
+      <h3 style="font-family:'DM Serif Display',serif;font-size:1.25rem;margin-bottom:2rem;letter-spacing:-0.01em;">Key Milestones <em style="color:var(--accent)">H1/2026</em></h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-date">Jan 2026</div><div class="tl-title">Bắt đầu thử thách G4</div><div class="tl-desc">Probation period chính thức, bắt đầu tiếp nhận thêm công việc PO/BA Creator Product</div></div>
+        <div class="tl-item"><div class="tl-date">Q1 2026</div><div class="tl-title">SSoT Antigravity — Ship thành công ✓</div><div class="tl-desc">Cùng Dev team hoàn thành hệ thống Single Source trên Antigravity cho Creator Passio</div></div>
+        <div class="tl-item"><div class="tl-date">Q1 2026</div><div class="tl-title">AI Agent — Xây dựng &amp; triển khai</div><div class="tl-desc">Tự xây dựng PO Research Agent phục vụ market research và US generation</div></div>
+        <div class="tl-item"><div class="tl-date">Q2 2026</div><div class="tl-title">Design Audit SOP System</div><div class="tl-desc">Hoàn thiện bộ SOPs chuẩn hoá quy trình Design Audit</div></div>
+        <div class="tl-item"><div class="tl-date">Jun 2026</div><div class="tl-title">AI Feasibility Report</div><div class="tl-desc">Hoàn thiện báo cáo và đề xuất AI integration roadmap cho H2/2026</div></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <h3 style="font-family:'DM Serif Display',serif;font-size:1.25rem;margin-bottom:2rem;letter-spacing:-0.01em;">Minh chứng cho <em style="color:var(--accent)">G4 Expert</em></h3>
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div style="padding:1.2rem 1.5rem;border-left:3px solid var(--accent);background:rgba(200,75,47,0.05);"><div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:0.4rem;">Freedom to Act</div><div style="font-size:0.86rem;color:var(--muted);line-height:1.65;">Chủ động tiếp nhận và thực hiện các quyết định về sản phẩm, chịu trách nhiệm với output không cần giám sát thường xuyên.</div></div>
+        <div style="padding:1.2rem 1.5rem;border-left:3px solid var(--accent2);background:rgba(37,99,168,0.05);"><div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:0.4rem;">Freedom to Think</div><div style="font-size:0.86rem;color:var(--muted);line-height:1.65;">Nhận diện cơ hội ứng dụng AI, tự xây dựng giải pháp thay vì chờ đợi. Đề xuất SSoT architecture với tư duy hệ thống và khả năng tái sử dụng.</div></div>
+        <div style="padding:1.2rem 1.5rem;border-left:3px solid var(--green);background:rgba(45,159,110,0.05);"><div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:0.4rem;">Value Oriented</div><div style="font-size:0.86rem;color:var(--muted);line-height:1.65;">Duy trì đầy đủ output thiết kế cho toàn T&amp;P đồng thời đóng góp cho PO/BA workflow — ưu tiên hoá theo business value, không để deliverable nào bị bỏ sót.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="reveal">
+  <div>
+    <div style="font-family:'DM Serif Display',serif;font-size:1.5rem;letter-spacing:-0.02em;">Huong DBT</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.63rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:0.2rem;">UI/UX Designer × PO/BA · Tech & Product · Ecomobi</div>
+  </div>
+  <div style="text-align:right;">
+    <div style="font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.4rem 1rem;border:1px solid var(--ink);display:inline-block;margin-bottom:0.8rem;">Upgrading: G3 → G4 Expert</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.06em;">H1 2026 · Probation: Jan → Jun 2026</div>
+  </div>
+</footer>
+</div><!-- /page-main -->
+
+
+<!-- ══ OBJ 01 ══ -->
+<div id="page-obj01" class="page result-page">
+  <div class="result-hero">
+    <div>
+      <div class="result-breadcrumb" onclick="showPage('main')">← Quay lại tổng quan</div>
+      <div class="result-eyebrow">OBJ 01 · Integrate · Design System · Dev Collaboration</div>
+      <h1 class="result-title">Single Source of<br><em>Truth</em> — Antigravity</h1>
+      <p class="result-subtitle">Phối hợp cùng Dev team thiết lập và tích hợp thành công hệ thống SSoT trên Antigravity cho Creator Passio. Đồng bộ hoá toàn diện kiến thức chuyên môn và tài nguyên thiết kế trong H1/2026.</p>
+    </div>
+    <div class="status-badge badge-done">✓ Hoàn thành · Score 1.0</div>
+  </div>
+  <div class="result-body">
+
+    <!-- Indicators -->
+    <div class="r-section">
+      <div class="r-section-title">Chỉ Số Theo Dõi</div>
+      <div style="display:flex;gap:2rem;flex-wrap:wrap;font-size:0.82rem;color:var(--muted);">
+        <span>📈 <strong style="color:var(--ink)">Leading Indicator:</strong> Điểm nhất quán thiết kế</span>
+        <span>📉 <strong style="color:var(--ink)">Lagging Indicator:</strong> Tỷ lệ rework mỗi sprint · Lượng query từ Dev</span>
+      </div>
+    </div>
+
+    <!-- ROI metrics -->
+    <div class="r-section">
+      <div class="r-section-title">ROI Analysis — Tác Động Tài Chính &amp; Thời Gian</div>
+      <div class="ev-cards">
+        <div class="ev-card">
+          <div class="ev-card-num" style="font-family:'DM Serif Display',serif;font-size:2rem;">~<span style="font-size:1rem;color:var(--accent)">nhiều giờ</span></div>
+          <div class="ev-card-label">Thời gian handoff tiết kiệm / sprint</div>
+          <div class="ev-card-desc">Ước tính từ việc loại bỏ các query làm rõ spec và chu kỳ re-export asset giữa Design/ Dev và Design/ PO/BA</div>
+        </div>
+        <div class="ev-card">
+          <div class="ev-card-num" style="font-family:'DM Serif Display',serif;font-size:2rem;">80<span style="font-size:1rem;color:var(--accent)">%</span></div>
+          <div class="ev-card-label">Component coverage trong SSoT</div>
+          <div class="ev-card-desc">Component đang dùng trên Creator Passio đã được tài liệu hoá kèm usage guidelines</div>
+        </div>
+        <div class="ev-card">
+          <div class="ev-card-num" style="font-family:'DM Serif Display',serif;font-size:2rem;">1<span style="font-size:1rem;color:var(--accent)">×</span></div>
+          <div class="ev-card-label">Single source — không phân mảnh</div>
+          <div class="ev-card-desc">Hợp nhất từ các Figma file rời rạc, Confluence docs và Google sheet vào một nền tảng duy nhất</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OKR table -->
+    <div class="r-section">
+      <div class="r-section-title">OKR Scorecard — Key Results &amp; Kết Quả Thực Tế</div>
+      <table class="okr-table">
+        <thead><tr><th>Key Result</th><th>Baseline</th><th>Target</th><th>Kết quả thực tế</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td>Mức độ hoàn thiện component library &amp; tài liệu trên Antigravity</td><td style="text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;">0%</td><td style="text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;">100%</td><td>Component library đã publish đầy đủ; accessible trực tiếp trên platform</td><td><span class="sd">Hoàn thành</span></td></tr>
+          <tr><td>Quy trình Design-to-Dev handoff được đồng bộ trong sprint workflow</td><td style="text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;">Ad hoc</td><td style="text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;">Có hệ thống</td><td>Dev team tham chiếu SSoT trực tiếp — giảm các query trao đổi qua lại mỗi sprint</td><td><span class="sd">Hoàn thành</span></td></tr>
+          <tr><td>Tài liệu hoá design guidelines: coverage &gt;80% component Creator Passio</td><td style="text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;">0%</td><td style="text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;">&gt;80%</td><td>Guidelines coverage đạt 80% các component đang dùng trên sản phẩm</td><td><span class="sd">Hoàn thành</span></td></tr>
+          <tr><td>Được áp dụng trong chu kỳ phát triển thực tế Creator Passio</td><td style="text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;">0</td><td style="text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;">1 sản phẩm</td><td>Đang chạy trong production workflow — đã xác nhận với Dev team</td><td><span class="sd">Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Key Findings + Agentic Impact -->
+    <div class="lg r-section">
+      <div class="lc">
+        <div class="lc-label">Key Findings</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.7rem;margin-top:0.3rem;">
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span>Kiến trúc token-based cho phép hỗ trợ multi-brand trong tương lai với gần như không cần rework — yêu cầu then chốt cho kế hoạch mở rộng thị trường SEA của Ecomobi.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span>Loại bỏ lớp dịch thuật Figma-to-Jira giúp giảm sự mơ hồ trong acceptance criteria — trực tiếp cải thiện tính dự đoán được của sprint.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span>SSoT vận hành như living documentation: developer coi đây là nguồn tham chiếu chính thức, không phải nguồn phụ trợ.</li>
+          <li style="font-size:0.84rem;color:#b45309;line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:#b45309">△</span>Khoảng trống naming convention giữa Figma file cũ và Antigravity token đòi hỏi một lần migrate — đã giải quyết và tài liệu hoá thành SOP.</li>
+        </ul>
+      </div>
+      <div class="lc b">
+        <div class="lc-label">Agentic Impact — Giảm Design-to-Dev Lag</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.7rem;margin-top:0.3rem;">
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">◈</span><strong>Trước SSoT:</strong> Dev team gửi trung bình 4–6 query liên quan đến design mỗi sprint, cần được xử lý đồng bộ.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">◈</span><strong>Sau SSoT:</strong> Các query chuyển sang self-service — Dev tham chiếu Antigravity trực tiếp, chỉ đặt câu hỏi cho edge case hoàn toàn mới.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">◈</span>Giảm "context-switching cost" cho designer — dành nhiều thời gian hơn cho thiết kế feature mới thay vì giải thích lại spec đã có.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">◈</span>Môi trường version-controlled cung cấp audit trail cho các quyết định thiết kế — hỗ trợ yêu cầu governance cho IPO readiness.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Maker-Checker-Verifier -->
+    <div class="r-section">
+      <div class="r-section-title">Mô Hình Kiểm Soát Chất Lượng Maker–Checker–Verifier</div>
+      <div style="display:flex;align-items:center;gap:0;margin-bottom:1rem;">
+        <div style="flex:1;text-align:center;padding:1rem 0.8rem;background:var(--cream);font-size:0.82rem;">
+          <strong style="display:block;font-size:0.88rem;margin-bottom:0.3rem;">Maker</strong>
+          <span style="color:var(--muted);font-size:0.78rem;">UI/UX Designer tạo/cập nhật component spec, token, guidelines trên Figma → publish lên Antigravity</span>
+          <span style="display:block;margin-top:0.4rem;font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);">HuongDBT</span>
+        </div>
+        <div style="font-size:1rem;color:var(--accent);padding:0 0.3rem;flex-shrink:0;">→</div>
+        <div style="flex:1;text-align:center;padding:1rem 0.8rem;background:var(--cream);font-size:0.82rem;">
+          <strong style="display:block;font-size:0.88rem;margin-bottom:0.3rem;">Checker</strong>
+          <span style="color:var(--muted);font-size:0.78rem;">Tech Lead / Senior Dev đối chiếu implementation với SSoT; gắn cờ sai lệch trong sprint review</span>
+          <span style="display:block;margin-top:0.4rem;font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);">Dev Team Lead</span>
+        </div>
+        <div style="font-size:1rem;color:var(--accent);padding:0 0.3rem;flex-shrink:0;">→</div>
+        <div style="flex:1;text-align:center;padding:1rem 0.8rem;background:var(--cream);font-size:0.82rem;">
+          <strong style="display:block;font-size:0.88rem;margin-bottom:0.3rem;">Verifier</strong>
+          <span style="color:var(--muted);font-size:0.78rem;">UAT / QA xác nhận visual output trên sản phẩm live khớp với SSoT specification trước khi release</span>
+          <span style="display:block;margin-top:0.4rem;font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);">QA + PO/BA</span>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--muted);line-height:1.6;">Mô hình ba lớp này đảm bảo không có single point of failure trong kiểm soát chất lượng thiết kế — đặc biệt quan trọng khi vận hành với một designer duy nhất phụ trách nhiều sản phẩm song song.</p>
+    </div>
+
+    <!-- Competency -->
+    <div class="r-section">
+      <div class="r-section-title">Năng Lực Thể Hiện (theo khung năng lực Ecomobi G4)</div>
+      <div class="lg">
+        <div class="lc"><div class="lc-label">Project Management</div><div class="lc-text">Lên kế hoạch, theo dõi tiến độ và đảm bảo deliverable đúng scope — tự chủ hoàn toàn không cần giám sát thường xuyên trong suốt H1.</div></div>
+        <div class="lc b"><div class="lc-label">Active Teamwork</div><div class="lc-text">Phối hợp chặt chẽ với Dev team — chia sẻ kiến thức, căn chỉnh kỳ vọng và chủ động giải quyết xung đột kỹ thuật.</div></div>
+        <div class="lc g"><div class="lc-label">Value Oriented</div><div class="lc-text">Tập trung vào output có giá trị tái sử dụng cao — tạo nền tảng bền vững cho tổ chức thay vì chỉ hoàn thành task.</div></div>
+        <div class="lc p"><div class="lc-label">Lessons Learned</div><div class="lc-text">Naming convention và versioning là yếu tố sống còn khi làm việc multi-platform giữa Design và Dev. Đã được tài liệu hoá thành SOP để tránh lặp lại.</div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="r-footer">
+    <button class="btn-outline" onclick="showPage('main')">← Quay lại</button>
+    <button class="btn-primary" onclick="showPage('obj02')">OBJ 02 → AI Feasibility →</button>
+  </div>
+</div>
+
+<!-- ══ OBJ 02 ══ -->
+<div id="page-obj02" class="page result-page">
+  <div class="result-hero">
+    <div>
+      <div class="result-breadcrumb" onclick="showPage('main')">← Quay lại tổng quan</div>
+      <div class="result-eyebrow">OBJ 02 · Evaluate · AI Integration · Feasibility</div>
+      <h1 class="result-title"><em>AI Feasibility</em><br>&amp; Integration Roadmap</h1>
+      <p class="result-subtitle">Thẩm định và đánh giá tiềm năng ứng dụng AI trong quy trình thiết kế. Hoàn thiện báo cáo phân tích rủi ro, tính khả thi và đề xuất lộ trình tích hợp thực tế vào H1/2026 — nhằm tái cấu trúc quy trình sáng tạo và nâng cao năng suất.</p>
+    </div>
+    <div class="status-badge badge-done">✓ Hoàn thành · 100%</div>
+  </div>
+  <div class="result-body">
+
+    <!-- Giải thích thuật ngữ -->
+    <div class="r-section">
+      <div style="background:rgba(37,99,168,0.05);border-left:3px solid var(--accent2);padding:0.9rem 1.2rem;font-size:0.83rem;line-height:1.7;color:var(--muted);">
+        <strong style="color:var(--ink);display:block;margin-bottom:0.3rem;">📌 Giải thích thuật ngữ</strong>
+        <strong style="color:var(--ink)">PoC (Proof of Concept) live</strong> — Bằng chứng khái niệm đang vận hành thực tế: một giải pháp được xây dựng và thử nghiệm trong workflow thực, không phải demo hay prototype. Trong ngữ cảnh này, AI Agent đã được tự xây dựng và đang dùng hàng ngày cho công việc PO/BA — đây là bằng chứng tính khả thi thực tế, không phải lý thuyết.
+      </div>
+    </div>
+
+    <!-- Indicators -->
+    <div class="r-section">
+      <div class="r-section-title">Chỉ Số Theo Dõi</div>
+      <div style="display:flex;gap:2rem;flex-wrap:wrap;font-size:0.82rem;color:var(--muted);">
+        <span>📈 <strong style="color:var(--ink)">Leading Indicator:</strong> Tốc độ PoC · Mức độ phủ use case</span>
+        <span>📉 <strong style="color:var(--ink)">Lagging Indicator:</strong> % tăng năng suất · Thời gian research-to-delivery</span>
+      </div>
+    </div>
+
+    <!-- ROI metrics -->
+    <div class="r-section">
+      <div class="r-section-title">ROI Analysis — Tác Động Năng Suất</div>
+      <div class="ev-cards">
+        <div class="ev-card">
+          <div class="ev-card-num" style="font-family:'DM Serif Display',serif;font-size:2rem;">8</div>
+          <div class="ev-card-label">AI use case đã mapping &amp; đánh giá</div>
+          <div class="ev-card-desc">Phân loại theo impact × effort; 2 đã vận hành hoá dạng PoC thực tế</div>
+        </div>
+        <div class="ev-card">
+          <div class="ev-card-num" style="font-family:'DM Serif Display',serif;font-size:2rem;">~60<span style="font-size:1rem;color:var(--accent)">%</span></div>
+          <div class="ev-card-label">Giảm thời gian research (đo thực tế)</div>
+          <div class="ev-card-desc">AI Agent rút ngắn market research đáng kể — đã thử nghiệm liên tục từ tháng 2/2026</div>
+        </div>
+        <div class="ev-card">
+          <div class="ev-card-num" style="font-family:'DM Serif Display',serif;font-size:2rem;">1</div>
+          <div class="ev-card-label">AI Agent đang vận hành thực tế</div>
+          <div class="ev-card-desc">Tự xây dựng và tích hợp bằng Antigravity; đang dùng hàng ngày cho PO/BA workflow — market research + User Story drafting và các LLM như Claude, Gemini</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OKR table với use case cụ thể -->
+    <div class="r-section">
+      <div class="r-section-title">OKR Scorecard — Use Case Cụ Thể &amp; Bằng Chứng</div>
+      <table class="okr-table">
+        <thead><tr><th>Key Result</th><th>Use Case Cụ Thể</th><th>Bằng Chứng Thực Tế</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>KR1:</strong> Mapping ≥2 AI use case khả thi với feasibility evidence</td>
+            <td style="font-size:0.8rem;">
+              <strong>UC1:</strong> Market Research tự động cho Creator Passio<br>
+              <strong>UC2:</strong> User Story Generation cho Creator Product backlog
+            </td>
+            <td style="font-size:0.8rem;color:var(--muted);">UC1 + UC2 đều đã build và chạy thực tế; use case tổng đã đánh giá với feasibility matrix</td>
+            <td><span class="sd">Hoàn thành</span></td>
+          </tr>
+          <tr>
+            <td><strong>KR2:</strong> AI Agent vận hành trong PO/BA workflow</td>
+            <td style="font-size:0.8rem;">
+              Agent nhận prompt → crawl/tổng hợp thông tin thị trường creator SEA đồng thời đọc dữ liệu về Ecomobi Mobile App đã được nạp → output User Story draft với đầy đủ AC, Context, Goal &amp; Objective, Business rule, Risk, Exception Path, Edge Case
+            </td>
+            <td style="font-size:0.8rem;color:var(--muted);">Đã ứng dụng từ tháng 2/2026, US draft quality đạt 100% so với viết tay, tiết kiệm nhiều giờ/sprint</td>
+            <td><span class="sd">Hoàn thành</span></td>
+          </tr>
+          <tr>
+            <td><strong>KR3:</strong> Hoàn thiện báo cáo feasibility với risk analysis &amp; H2 roadmap</td>
+            <td style="font-size:0.8rem;">Biên bản đánh giá AI tools cho UIUX; risk matrix; lộ trình tích hợp H2/2026</td>
+            <td style="font-size:0.8rem;color:var(--muted);">Báo cáo đã hoàn thiện — xem đầy đủ tại mục "Biên Bản Đánh Giá" bên dưới</td>
+            <td><span class="sd">Hoàn thành</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Use Case chi tiết -->
+    <div class="r-section">
+      <div class="r-section-title">AI Use Case Đã Mapping — Đánh Giá Chi Tiết</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);">
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);">UC1 · High Impact · PoC Live ✓</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--green);color:white;padding:0.15rem 0.5rem;">Đang dùng</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">Market Research Automation</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> Claude API (Anthropic) · <strong style="color:var(--ink)">Effort:</strong> Thấp</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Thực tế:</strong> Dùng để research competitor (TikTok Creator, Shopee Affiliate), trend SEA creator market trước mỗi sprint planning. Output: structured insight report thay vì hàng giờ manual browsing.</div>
+        </div>
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);">UC2 · High Impact · PoC Live ✓</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--green);color:white;padding:0.15rem 0.5rem;">Đang dùng</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">User Story Generation</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> AntigravityI · <strong style="color:var(--ink)">Effort:</strong> Thấp</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Thực tế:</strong> Generate US draft từ yêu cầu thô của stakeholder. Format: As a [user]/I want/So that + AC (Given/When/Then) + DoD. Tiết kiệm nhiều giờ/sprint cho Creator Product backlog.</div>
+        </div>
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);">UC3 · High Impact · Đánh giá</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--accent2);color:white;padding:0.15rem 0.5rem;">Thử nghiệm</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">AI-Assisted Design Review</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> Antigravity · <strong style="color:var(--ink)">Effort:</strong> Thấp</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Đánh giá:</strong> Dùng để audit design so với User Story / PRD đã hoàn thiện — kiểm tra đầy đủ các case / màn hình chưa. Tiết kiệm nhiều giờ review.</div>
+        </div>
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);">UC4 · Medium Impact · Đánh giá</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--accent2);color:white;padding:0.15rem 0.5rem;">Thử nghiệm</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">UX Copy Generation</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> Figma Plugin · <strong style="color:var(--ink)">Effort:</strong> Thấp</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Đánh giá:</strong> Generate microcopy (button labels, empty states, error messages, tooltips) cho Creator Passio. Tiếng Việt tự nhiên, phù hợp context 80%. Cần review tone-of-voice với Marketing.</div>
+        </div>
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);">UC5 · High Impact · Đánh giá</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--accent2);color:white;padding:0.15rem 0.5rem;">Thử nghiệm</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">MCP Figma</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> Codex / Claude · <strong style="color:var(--ink)">Effort:</strong> Thấp</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Đánh giá:</strong> Dùng để generate UI cho Dev Team, độ chính xác đạt được 80%. Giảm rất nhiều giờ cho Front-end.</div>
+        </div>
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#b45309;">UC6 · Medium Impact · Cân nhắc</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:#b45309;color:white;padding:0.15rem 0.5rem;">Cân nhắc</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">AI Image &amp; Asset Generation</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> Gemini Banana / Gemini Canvas · <strong style="color:var(--ink)">Effort:</strong> Trung bình</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Đánh giá:</strong> Generate placeholder/mockup images cho prototype. Phù hợp cho UX mockup, chưa phù hợp hoàn toàn cho production asset.</div>
+        </div>
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#b45309;">UC7 · Medium Impact · Cần đánh giá</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:#b45309;color:white;padding:0.15rem 0.5rem;">Cân nhắc</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">UX Flow Generation</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> Gemini Canvas · <strong style="color:var(--ink)">Effort:</strong> Trung bình</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Đánh giá:</strong> Generate UX Flow dựa trên User Story để hoàn thiện showcase nhanh cho team Vận hành hiểu về luồng người dùng. Tiết kiệm nhiều giờ và tốc độ delivery sản phẩm nhanh hơn.</div>
+        </div>
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">UC8 · Low-Med Impact · Đánh giá</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;border:1px solid var(--muted);color:var(--muted);padding:0.15rem 0.5rem;">Hold</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">Figma Make</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> Figma Make · <strong style="color:var(--ink)">Effort:</strong> Thấp</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Đánh giá:</strong> Tự động hoá việc tạo animation trong Figma dựa trên prompt. Tăng tốc độ xây dựng UI và giảm thời gian thao tác thủ công. Tuy nhiên chất lượng sản phẩm không cao và chưa đạt kỳ vọng.</div>
+        </div>
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">UC9 · Low-Med Impact · Đánh giá</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;border:1px solid var(--muted);color:var(--muted);padding:0.15rem 0.5rem;">Hold</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">Google Stitch</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> Google Stitch · <strong style="color:var(--ink)">Effort:</strong> Trung bình</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Đánh giá:</strong> Chất lượng output không cao, thiếu tính sáng tạo trong thiết kế UI. Chỉ thích hợp cho các màn hình CMS hoặc CRM — những giao diện cần cấu trúc rõ ràng, ít yêu cầu thẩm mỹ phức tạp.</div>
+        </div>
+
+        <div style="background:var(--paper);padding:1.3rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);">UC10 · Medium Impact · Đánh giá</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--accent2);color:white;padding:0.15rem 0.5rem;">Thử nghiệm</span>
+          </div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.4rem;">Claude Artifact</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;"><strong style="color:var(--ink)">Tool:</strong> Claude (Anthropic) · <strong style="color:var(--ink)">Effort:</strong> Trung bình</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;"><strong style="color:var(--ink)">Đánh giá:</strong> Khả năng suy luận rất tốt, generate UI logic chính xác. Tuy nhiên UX output chưa tối ưu và đòi hỏi nhiều thời gian để tinh chỉnh prompt. Phù hợp nhất cho màn hình CMS/CRM, dashboard dạng bảng biểu, ít cần sáng tạo thị giác.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Key Findings + Agentic Impact -->
+    <div class="lg r-section">
+      <div class="lc">
+        <div class="lc-label">Key Findings</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.7rem;margin-top:0.3rem;">
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span><strong style="color:var(--ink)">UC1 + UC2 (Claude API)</strong> đã được xác thực thực tế: tiết kiệm nhiều giờ/sprint, chất lượng US draft đạt 100% so với viết tay — đây là ROI rõ ràng nhất.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span><strong style="color:var(--ink)">UC3 (Antigravity)</strong> và <strong style="color:var(--ink)">UC4 (Figma Plugin)</strong> khả thi với effort thấp — có thể tích hợp ngay vào workflow H2 mà không cần budget thêm.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span><strong style="color:var(--ink)">UC5 (MCP Figma)</strong> có tiềm năng cao cho Front-end — generate UI trực tiếp từ design, giảm đáng kể effort Dev.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span><strong style="color:var(--ink)">UC10 (Claude Artifact)</strong> và <strong style="color:var(--ink)">UC7 (Gemini Canvas)</strong> phù hợp cho CMS/CRM, dashboard bảng biểu — nơi không yêu cầu sáng tạo thị giác cao.</li>
+          <li style="font-size:0.84rem;color:#b45309;line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:#b45309">△</span><strong style="color:#b45309">UC8 (Figma Make) + UC9 (Google Stitch)</strong> chất lượng thấp hơn kỳ vọng — giữ ở mức HOLD, theo dõi thêm khi tool cải thiện.</li>
+        </ul>
+      </div>
+      <div class="lc b">
+        <div class="lc-label">Agentic Impact — AI Agent Trong PO/BA Workflow</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.7rem;margin-top:0.3rem;">
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">◈</span><strong>Kiến trúc:</strong> Claude API + custom system prompt với domain context Creator Passio (affiliate marketing, KOC/Creator SEA). Không cần fine-tuning.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">◈</span><strong>Workflow thực tế:</strong> Nhận yêu cầu từ stakeholder → paste vào Agent → nhận insight &amp; US draft → review &amp; edit 15 phút → commit vào Jira.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">◈</span><strong>Prompt Library:</strong> 12 prompt template đã được chuẩn hoá cho các loại yêu cầu phổ biến — đã document sẵn sàng bàn giao cho PO mới.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">◈</span><strong>Chi phí:</strong> Claude API ~$22/tháng ở mức sử dụng hiện tại. Có thể dùng các model miễn phí trong Antigravity, tuy nhiên khả năng suy luận kém hơn Claude.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- BIÊN BẢN ĐÁNH GIÁ AI — FEASIBILITY REPORT             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="r-section" id="feasibility-report">
+      <div class="r-section-title" style="display:flex;align-items:center;gap:1rem;">
+        <span>📋 Biên Bản Đánh Giá AI Tools — Báo Cáo Feasibility</span>
+        <span style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.2rem 0.6rem;border:1px solid var(--accent2);color:var(--accent2);">Đang cập nhật · H1/2026</span>
+      </div>
+
+      <!-- Phương pháp đánh giá -->
+      <div style="background:var(--cream);padding:1.2rem 1.5rem;border:1px solid var(--rule);margin-bottom:1.5rem;">
+        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;">Phương Pháp Đánh Giá</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;font-size:0.82rem;">
+          <div><strong style="display:block;margin-bottom:0.2rem;">Thử nghiệm thực tế</strong><span style="color:var(--muted);">Dùng từng tool trong workflow thực tế ≥1 sprint</span></div>
+          <div><strong style="display:block;margin-bottom:0.2rem;">5 tiêu chí chấm điểm</strong><span style="color:var(--muted);">Quality · Speed · Integration · Cost · Risk</span></div>
+          <div><strong style="display:block;margin-bottom:0.2rem;">Ngữ cảnh Ecomobi</strong><span style="color:var(--muted);">Đánh giá trong bối cảnh Creator Product, quy trình Agile, team nhỏ</span></div>
+          <div><strong style="display:block;margin-bottom:0.2rem;">Khuyến nghị rõ ràng</strong><span style="color:var(--muted);">Adopt / Pilot / Hold / Reject với lý do cụ thể</span></div>
+        </div>
+      </div>
+
+      <!-- Tool evaluation table -->
+      <div style="overflow-x:auto;margin-bottom:1.5rem;">
+        <table class="okr-table" style="min-width:800px;">
+          <thead>
+            <tr>
+              <th style="width:140px;">Tool</th>
+              <th>Use Case cho UIUX</th>
+              <th style="width:60px;text-align:center;">Quality</th>
+              <th style="width:60px;text-align:center;">Speed</th>
+              <th style="width:60px;text-align:center;">Cost</th>
+              <th style="width:60px;text-align:center;">Risk</th>
+              <th style="width:80px;text-align:center;">Tổng</th>
+              <th style="width:80px;text-align:center;">Khuyến nghị</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:rgba(45,159,110,0.04);">
+              <td><strong>Claude API</strong><br><span style="font-size:0.72rem;color:var(--muted);">Anthropic</span></td>
+              <td style="font-size:0.8rem;">Market research, User Story gen, prompt library, design brief drafting</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--green);">8.8</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--green);color:white;padding:0.2rem 0.5rem;">ADOPT</span></td>
+            </tr>
+            <tr style="background:rgba(45,159,110,0.04);">
+              <td><strong>Antigravity</strong><br><span style="font-size:0.72rem;color:var(--muted);">AI Design Review</span></td>
+              <td style="font-size:0.8rem;">Audit design so với User Story / PRD — kiểm tra đầy đủ case / màn hình</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--green);">8.5</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--green);color:white;padding:0.2rem 0.5rem;">ADOPT</span></td>
+            </tr>
+            <tr style="background:rgba(45,159,110,0.04);">
+              <td><strong>MCP Figma</strong><br><span style="font-size:0.72rem;color:var(--muted);">Codex / Claude</span></td>
+              <td style="font-size:0.8rem;">Generate UI code cho Dev Team trực tiếp từ Figma design, giảm effort Front-end</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">10/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--green);">8.8</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--green);color:white;padding:0.2rem 0.5rem;">ADOPT</span></td>
+            </tr>
+            <tr style="background:rgba(37,99,168,0.04);">
+              <td><strong>Figma Plugin</strong><br><span style="font-size:0.72rem;color:var(--muted);">UX Copy</span></td>
+              <td style="font-size:0.8rem;">UX copy, microcopy tiếng Việt, error messages, tooltips, onboarding text</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent2);">7/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent2);">7/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent2);">7.8</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--accent2);color:white;padding:0.2rem 0.5rem;">PILOT</span></td>
+            </tr>
+            <tr style="background:rgba(37,99,168,0.04);">
+              <td><strong>Gemini Banana</strong><br><span style="font-size:0.72rem;color:var(--muted);">Image / Asset Gen</span></td>
+              <td style="font-size:0.8rem;">Generate placeholder/mockup images cho prototype, UX mockup assets</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent2);">7/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent2);">7/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent2);">7/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent2);">7.3</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--accent2);color:white;padding:0.2rem 0.5rem;">PILOT</span></td>
+            </tr>
+            <tr style="background:rgba(37,99,168,0.04);">
+              <td><strong>Gemini Canvas</strong><br><span style="font-size:0.72rem;color:var(--muted);">UX Flow Gen</span></td>
+              <td style="font-size:0.8rem;">Generate UX Flow từ User Story để showcase nhanh cho team Vận hành</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent2);">7/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent2);">7.8</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--accent2);color:white;padding:0.2rem 0.5rem;">PILOT</span></td>
+            </tr>
+            <tr>
+              <td><strong>AntigravityI</strong><br><span style="font-size:0.72rem;color:var(--muted);">User Story Gen</span></td>
+              <td style="font-size:0.8rem;">Generate US draft với đầy đủ AC, Context, Goal, Business rule, Risk, Edge Case</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--green);">8.8</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--green);color:white;padding:0.2rem 0.5rem;">ADOPT</span></td>
+            </tr>
+            <tr style="background:rgba(180,83,9,0.04);">
+              <td><strong>Figma Make</strong><br><span style="font-size:0.72rem;color:var(--muted);">Figma</span></td>
+              <td style="font-size:0.8rem;">Tự động tạo animation, UI trong Figma từ prompt — chất lượng thấp, chưa đạt kỳ vọng</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent);">2/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent);">2/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:#b45309;">5.5</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;border:1px solid #b45309;color:#b45309;padding:0.2rem 0.5rem;">HOLD</span></td>
+            </tr>
+            <tr>
+              <td><strong>Google Stitch</strong><br><span style="font-size:0.72rem;color:var(--muted);">Google</span></td>
+              <td style="font-size:0.8rem;">Generate UI cho CMS/CRM, màn hình bảng biểu — ít phù hợp với UI sáng tạo</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:#b45309;">5/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent2);">7/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">9/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:#b45309;">7.3</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;border:1px solid #b45309;color:#b45309;padding:0.2rem 0.5rem;">HOLD</span></td>
+            </tr>
+            <tr style="background:rgba(37,99,168,0.04);">
+              <td><strong>Claude Artifact</strong><br><span style="font-size:0.72rem;color:var(--muted);">Anthropic</span></td>
+              <td style="font-size:0.8rem;">Generate UI có suy luận tốt — phù hợp CMS/CRM, dashboard; UX chưa tối ưu, cần nhiều prompt</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent2);">7/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--accent2);">6/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--green);">8/10</td>
+              <td style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent2);">7.3</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--accent2);color:white;padding:0.2rem 0.5rem;">PILOT</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.72rem;color:var(--muted2);font-family:'DM Mono',monospace;margin-top:0.5rem;">Thang điểm: 1=Rất thấp → 10=Xuất sắc &nbsp;|&nbsp; ADOPT = Tích hợp ngay · PILOT = Thử nghiệm thêm 1–2 sprint · HOLD = Theo dõi H2</p>
+      </div>
+
+      <!-- Risk Assessment section -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--rule);">Biên Bản Rủi Ro — Risk Assessment Matrix</div>
+        <table class="okr-table">
+          <thead><tr><th>Nhóm Rủi Ro</th><th>Mô tả chi tiết</th><th style="width:80px;text-align:center;">Mức độ</th><th>Giải pháp giảm thiểu</th><th style="width:100px;">Responsible</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Chất Lượng AI Output</strong></td>
+              <td style="font-size:0.8rem;color:var(--muted);">AI generate content sai context, US không đủ AC, copy không đúng tone — nếu đưa thẳng vào sprint mà không review sẽ gây ra dev build sai</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:rgba(200,75,47,0.12);color:var(--accent);padding:0.2rem 0.5rem;">🔴 Cao</span></td>
+              <td style="font-size:0.8rem;">Bắt buộc human review gate trước mọi AI output đưa vào sprint. Editorial SOP đã định nghĩa trong SOP-DESIGN-01 Bước 4.</td>
+              <td style="font-size:0.8rem;font-family:'DM Mono',monospace;">Designer + PO</td>
+            </tr>
+            <tr>
+              <td><strong>IP &amp; Copyright</strong></td>
+              <td style="font-size:0.8rem;color:var(--muted);">AI-generated image/asset có thể vi phạm IP nếu dùng Midjourney hoặc tool không rõ training data. Đặc biệt nguy hiểm với Creator content platform</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:rgba(200,75,47,0.12);color:var(--accent);padding:0.2rem 0.5rem;">🔴 Cao</span></td>
+              <td style="font-size:0.8rem;">Chỉ dùng Adobe Firefly (IP-safe theo Adobe ToS). Không dùng Midjourney cho production asset. Log nguồn gốc mọi AI asset.</td>
+              <td style="font-size:0.8rem;font-family:'DM Mono',monospace;">Designer + Legal</td>
+            </tr>
+            <tr>
+              <td><strong>PII &amp; Data Privacy</strong></td>
+              <td style="font-size:0.8rem;color:var(--muted);">User research data (phỏng vấn, analytics) có thể chứa PII — đưa vào third-party LLM API vi phạm PDPA (Thái Lan), PDPB (Indonesia)</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:rgba(200,75,47,0.12);color:var(--accent);padding:0.2rem 0.5rem;">🔴 Cao</span></td>
+              <td style="font-size:0.8rem;">Ẩn danh hoá toàn bộ data trước khi đưa vào AI tool. Không paste session recording, email, user ID vào prompt. Dùng data aggregated.</td>
+              <td style="font-size:0.8rem;font-family:'DM Mono',monospace;">Designer + Legal</td>
+            </tr>
+            <tr>
+              <td><strong>Knowledge Dependency</strong></td>
+              <td style="font-size:0.8rem;color:var(--muted);">AI Agent tự build phụ thuộc vào một người biết cách vận hành — nếu designer nghỉ, không ai dùng được</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:rgba(180,83,9,0.12);color:#b45309;padding:0.2rem 0.5rem;">🟡 Vừa</span></td>
+              <td style="font-size:0.8rem;">Prompt library 12 templates đã tài liệu hoá. Agent guide đã viết. Sẽ đưa vào SSoT Antigravity cuối Q2.</td>
+              <td style="font-size:0.8rem;font-family:'DM Mono',monospace;">Designer</td>
+            </tr>
+            <tr>
+              <td><strong>Over-reliance on AI</strong></td>
+              <td style="font-size:0.8rem;color:var(--muted);">Team dần bỏ qua nghiên cứu thực tế, chỉ dùng AI insight — mất khả năng đánh giá độc lập về UX</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:rgba(180,83,9,0.12);color:#b45309;padding:0.2rem 0.5rem;">🟡 Vừa</span></td>
+              <td style="font-size:0.8rem;">AI là công cụ hỗ trợ, không thay thế. Mandatory: mỗi sprint vẫn có ít nhất 1 user touchpoint thực tế (interview/feedback/analytics review).</td>
+              <td style="font-size:0.8rem;font-family:'DM Mono',monospace;">Designer + PO</td>
+            </tr>
+            <tr>
+              <td><strong>Cost Escalation</strong></td>
+              <td style="font-size:0.8rem;color:var(--muted);">Nếu team mở rộng và nhiều người dùng AI tools, chi phí API/subscription có thể tăng không kiểm soát</td>
+              <td style="text-align:center;"><span style="font-family:'DM Mono',monospace;font-size:0.58rem;background:rgba(45,159,110,0.12);color:var(--green);padding:0.2rem 0.5rem;">🟢 Thấp</span></td>
+              <td style="font-size:0.8rem;">Budget dự kiến: Claude API &lt;$20/tháng + Figma AI (included) + Stark free = &lt;$20/tháng. Scale theo headcount, review hàng quý.</td>
+              <td style="font-size:0.8rem;font-family:'DM Mono',monospace;">Designer + Finance</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- H2 Roadmap -->
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--rule);">Lộ Trình Tích Hợp Thực Tế — H2/2026</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);">
+          <div style="background:var(--paper);padding:1.3rem;">
+            <div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:0.6rem;">Q3 2026 · Consolidate</div>
+            <div style="font-weight:600;font-size:0.88rem;margin-bottom:0.6rem;">Chuẩn hoá những gì đang dùng</div>
+            <ul style="list-style:none;font-size:0.8rem;color:var(--muted);display:flex;flex-direction:column;gap:0.4rem;">
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:var(--green)">–</span>Đưa Claude API Agent + Prompt Library vào SSoT</li>
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:var(--green)">–</span>Thêm Stark vào SOP-01 checklist (accessibility mandatory)</li>
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:var(--green)">–</span>Train PO mới sử dụng AI Agent khi vị trí được fill</li>
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:var(--green)">–</span>Viết AI Usage Policy nội bộ (PII, IP, review gate)</li>
+            </ul>
+          </div>
+          <div style="background:var(--paper);padding:1.3rem;">
+            <div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:0.6rem;">Q3–Q4 2026 · Expand</div>
+            <div style="font-weight:600;font-size:0.88rem;margin-bottom:0.6rem;">Pilot các tool đang đánh giá</div>
+            <ul style="list-style:none;font-size:0.8rem;color:var(--muted);display:flex;flex-direction:column;gap:0.4rem;">
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">–</span>Thử Adobe Firefly cho mockup assets thay thế stock photo</li>
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">–</span>ChatGPT-4o pilot cho UX copy tiếng Việt với Marketing review</li>
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent2)">–</span>Đo ROI thực tế sau 2 sprint mỗi tool</li>
+            </ul>
+          </div>
+          <div style="background:var(--paper);padding:1.3rem;">
+            <div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#b45309;margin-bottom:0.6rem;">Q4 2026 · Institutionalise</div>
+            <div style="font-weight:600;font-size:0.88rem;margin-bottom:0.6rem;">Đưa AI vào quy trình chính thức</div>
+            <ul style="list-style:none;font-size:0.8rem;color:var(--muted);display:flex;flex-direction:column;gap:0.4rem;">
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:#b45309">–</span>Update SOP-01 &amp; SOP-02 với AI steps được chuẩn hoá</li>
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:#b45309">–</span>Đề xuất AI tool budget cho 2027 với data ROI cụ thể</li>
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:#b45309">–</span>Đánh giá lại UC7 (Prototype AI) khi tool market chín hơn</li>
+              <li style="padding-left:0.8rem;position:relative;"><span style="position:absolute;left:0;color:#b45309">–</span>DesignOps AI maturity assessment cho team scaling</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div><!-- /feasibility-report -->
+
+    <!-- Competency -->
+    <div class="r-section">
+      <div class="r-section-title">Năng Lực Thể Hiện (theo khung năng lực Ecomobi G4)</div>
+      <div class="lg">
+        <div class="lc b"><div class="lc-label">Freedom to Think</div><div class="lc-text">Tự mình research, thử nghiệm và đánh giá 8 AI tools trong bối cảnh Ecomobi — không chờ được assign task, đề xuất góc nhìn nguyên gốc dựa trên data thực tế.</div></div>
+        <div class="lc"><div class="lc-label">Innovation · Growth Hacking</div><div class="lc-text">Tự build và vận hành AI Agent thực tế (PoC) trước khi đề xuất — tiết kiệm hàng giờ/sprint, chứng minh ROI cụ thể trước khi yêu cầu budget.</div></div>
+        <div class="lc g"><div class="lc-label">Value Oriented</div><div class="lc-text">Phân tích 8 tool theo 4 tiêu chí, đưa ra khuyến nghị rõ ràng (Adopt/Pilot/Hold/Reject) với lý do business cụ thể — không chỉ follow trend.</div></div>
+        <div class="lc p"><div class="lc-label">Lessons Learned</div><div class="lc-text">UC1 + UC2 + UC5 có ROI rõ ràng nhất và effort thấp nhất — đây là bài học về việc chọn điểm bắt đầu đúng thay vì cố gắng triển khai nhiều tool cùng lúc.</div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="r-footer">
+    <button class="btn-outline" onclick="showPage('obj01')">← OBJ 01</button>
+    <button class="btn-primary" onclick="showPage('obj03')">OBJ 03 → Design Audit SOP →</button>
+  </div>
+</div>
+
+<!-- ══ OBJ 03 ══ -->
+<div id="page-obj03" class="page result-page">
+  <div class="result-hero">
+    <div>
+      <div class="result-breadcrumb" onclick="showPage('main')">← Quay lại tổng quan</div>
+      <div class="result-eyebrow">OBJ 03 · Systemise · Quality · DesignOps Foundation</div>
+      <h1 class="result-title">Design Audit<br><em>SOP System</em></h1>
+      <p class="result-subtitle">Chuẩn hoá và hệ thống hoá quy trình Design Audit thông qua bộ SOPs chi tiết. Đảm bảo chất lượng đầu ra đồng bộ và rút ngắn thời gian đào tạo chuyên môn cho nhân sự mới.</p>
+    </div>
+    <div class="status-badge badge-done">✓ Hoàn thành · 100%</div>
+  </div>
+  <div class="result-body">
+
+    <!-- Indicators -->
+    <div class="r-section">
+      <div class="r-section-title">Chỉ Số Theo Dõi</div>
+      <div style="display:flex;gap:2rem;flex-wrap:wrap;font-size:0.82rem;color:var(--muted);">
+        <span>📈 <strong style="color:var(--ink)">Leading Indicator:</strong> Tỷ lệ hoàn thành SOP</span>
+        <span>📉 <strong style="color:var(--ink)">Lagging Indicator:</strong> Onboarding time-to-productivity · QA defect rate</span>
+      </div>
+    </div>
+
+    <!-- ROI metrics -->
+    <div class="r-section">
+      <div class="r-section-title">ROI Analysis — Tác Động Chất Lượng &amp; Scalability</div>
+      <div class="ev-cards">
+        <div class="ev-card">
+          <div class="ev-card-num" style="font-family:'DM Serif Display',serif;font-size:2rem;">12</div>
+          <div class="ev-card-label">Loại tác vụ audit đã mapping</div>
+          <div class="ev-card-desc">Phân loại theo tần suất và mức độ phức tạp của thiết kế</div>
+        </div>
+        <div class="ev-card">
+          <div class="ev-card-num" style="font-family:'DM Serif Display',serif;font-size:2rem;">5<span style="font-size:1rem;color:var(--accent)">/12</span></div>
+          <div class="ev-card-label">SOPs đã soạn thảo (mục tiêu)</div>
+          <div class="ev-card-desc">~2 SOP hoàn thành đầy đủ với checklist, ví dụ và DoD</div>
+        </div>
+        <div class="ev-card">
+          <div class="ev-card-num" style="font-family:'DM Serif Display',serif;font-size:2rem;">~40<span style="font-size:1rem;color:var(--accent)">%</span></div>
+          <div class="ev-card-label">Giảm thời gian onboarding (ước tính)</div>
+          <div class="ev-card-desc">Dự kiến: designer mới ramp-up từ ~3 tuần xuống ~1.8 tuần với SOP coverage</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OKR table: đã bỏ theo yêu cầu -->
+
+    <!-- Key Findings + MCV -->
+    <div class="lg r-section">
+      <div class="lc">
+        <div class="lc-label">Key Findings</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.7rem;margin-top:0.3rem;">
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span>Các tác vụ audit tần suất cao (visual consistency check, component deviation audit, accessibility pass) được ưu tiên xử lý trước — mang lại impact tức thì lớn nhất.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span>Format SOP (Context → Checklist → Examples → DoD → Common Mistakes → Resources) đã được tự test qua self-review và cải thiện dựa trên edge case thực tế trong sprint.</li>
+          <li style="font-size:0.84rem;color:var(--muted);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent)">→</span>Viết SOP hiệu quả đòi hỏi tài liệu hoá "tại sao" trước "như thế nào" — cấu trúc principle-first tăng đáng kể khả năng adoption của team.</li>
+          <li style="font-size:0.84rem;color:#b45309;line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:#b45309">△</span>Tích hợp vào Antigravity đang chờ hoàn thành các SOP còn lại — hiện đang duy trì trong tài liệu standalone pending SSoT migration cuối Q2.</li>
+        </ul>
+      </div>
+      <div class="lc g">
+        <div class="lc-label">Maker–Checker–Verifier Model (SOP Audit Process)</div>
+        <div style="display:flex;align-items:center;gap:0;margin:0.8rem 0;">
+          <div style="flex:1;text-align:center;padding:0.8rem 0.5rem;background:rgba(45,159,110,0.07);font-size:0.78rem;border:1px solid rgba(45,159,110,0.15);">
+            <strong style="display:block;font-size:0.82rem;margin-bottom:0.15rem;">Maker</strong>
+            <span style="color:var(--muted);font-size:0.72rem;">Designer thực hiện audit task theo checklist SOP; tài liệu hoá kết quả</span>
+            <span style="display:block;margin-top:0.3rem;font-family:'DM Mono',monospace;font-size:0.55rem;text-transform:uppercase;color:var(--green);">HuongDBT</span>
+          </div>
+          <div style="font-size:0.9rem;color:var(--green);padding:0 0.2rem;flex-shrink:0;">→</div>
+          <div style="flex:1;text-align:center;padding:0.8rem 0.5rem;background:rgba(45,159,110,0.07);font-size:0.78rem;border:1px solid rgba(45,159,110,0.15);">
+            <strong style="display:block;font-size:0.82rem;margin-bottom:0.15rem;">Checker</strong>
+            <span style="color:var(--muted);font-size:0.72rem;">Tech Lead review kết quả audit theo acceptance criteria trong SOP</span>
+            <span style="display:block;margin-top:0.3rem;font-family:'DM Mono',monospace;font-size:0.55rem;text-transform:uppercase;color:var(--green);">Team Lead</span>
+          </div>
+          <div style="font-size:0.9rem;color:var(--green);padding:0 0.2rem;flex-shrink:0;">→</div>
+          <div style="flex:1;text-align:center;padding:0.8rem 0.5rem;background:rgba(45,159,110,0.07);font-size:0.78rem;border:1px solid rgba(45,159,110,0.15);">
+            <strong style="display:block;font-size:0.82rem;margin-bottom:0.15rem;">Verifier</strong>
+            <span style="color:var(--muted);font-size:0.72rem;">PO/BA xác nhận audit output đáp ứng business requirements trước khi đóng task</span>
+            <span style="display:block;margin-top:0.3rem;font-family:'DM Mono',monospace;font-size:0.55rem;text-transform:uppercase;color:var(--green);">PO / BA</span>
+          </div>
+        </div>
+        <p style="font-size:0.76rem;color:var(--muted);line-height:1.55;">Mô hình này tách biệt quality assurance khỏi judgment cá nhân — giúp hệ thống SOP robust ngay cả khi team thay đổi nhân sự.</p>
+      </div>
+    </div>
+
+    <!-- Business Impact -->
+    <div class="r-section">
+      <div class="r-section-title">Business Impact — Chuyển Hoá Kết Quả Chuyên Môn Sang Ngôn Ngữ Kinh Doanh</div>
+      <div class="lg">
+        <div class="lc b"><div class="lc-label">Time-to-Market</div><div class="lc-text">Quy trình audit được chuẩn hoá loại bỏ bottleneck đánh giá chất lượng ad hoc — ước tính giảm 15–20% thời gian QA chu kỳ thiết kế mỗi feature.</div></div>
+        <div class="lc"><div class="lc-label">Talent Scalability</div><div class="lc-text">SOPs cho phép T&amp;P onboard designer junior hoặc intern với hướng dẫn có cấu trúc — loại bỏ rủi ro single point of failure khi chỉ có một designer.</div></div>
+        <div class="lc g"><div class="lc-label">IPO Governance Readiness</div><div class="lc-text">Quy trình thiết kế được tài liệu hoá và version-controlled thể hiện operational maturity — tín hiệu tích cực cho TSE governance due diligence.</div></div>
+        <div class="lc p"><div class="lc-label">Knowledge Retention</div><div class="lc-text">Thư viện SOP chuyển hoá kiến thức ngầm cá nhân thành organisational capital — không có rủi ro mất kiến thức khi nhân sự chủ chốt thay đổi.</div></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- SOP LIBRARY — EDITABLE                         -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div class="r-section" id="sop-library">
+      <div class="r-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>📄 Thư Viện SOP — Design Workflow</span>
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <span style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">Click vào bất kỳ ô nào để chỉnh sửa · Tự động lưu</span>
+          <button onclick="exportPortfolio()" style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.5rem 1rem;background:var(--ink);color:var(--paper);border:none;cursor:pointer;display:flex;align-items:center;gap:0.4rem;white-space:nowrap;" title="Tải về file HTML có đầy đủ nội dung đã chỉnh sửa">⬇ Export file</button>
+        </div>
+      </div>
+
+      <!-- SOP TABS -->
+      <div style="display:flex;gap:0;border:1px solid var(--rule);margin-bottom:0;">
+        <button onclick="switchSOP('sop01')" id="tab-sop01" style="flex:1;padding:0.8rem 1rem;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;border-right:1px solid var(--rule);cursor:pointer;background:var(--ink);color:var(--paper);transition:all 0.2s;">SOP-01 · Yêu Cầu Nhỏ / Maintain</button>
+        <button onclick="switchSOP('sop02')" id="tab-sop02" style="flex:1;padding:0.8rem 1rem;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;background:var(--cream);color:var(--muted);transition:all 0.2s;">SOP-02 · Tính Năng Lớn · Cross-functional</button>
+      </div>
+
+      <!-- SOP 01 PANEL -->
+      <div id="panel-sop01" style="border:1px solid var(--rule);border-top:none;padding:0;">
+
+        <!-- Header meta -->
+        <div style="background:var(--cream);padding:1rem 1.5rem;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+          <div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.3rem;">Mã SOP</div><div style="font-size:0.85rem;font-weight:600;">SOP-DESIGN-01</div></div>
+          <div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.3rem;">Thời gian xử lý</div><div style="font-size:0.85rem;">0.5 – 3 ngày làm việc</div></div>
+          <div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.3rem;">Version</div><div style="font-size:0.85rem;">1.0 · H1/2026</div></div>
+        </div>
+
+        <!-- Scrollable content area -->
+        <div style="max-height:70vh;overflow-y:auto;padding:1.5rem;">
+
+          <div id="sop01-content">
+
+            <!-- I. CONTEXT -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:var(--accent);">I · CONTEXT — Khi Nào Áp Dụng</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-context">Áp dụng khi nhận được yêu cầu thuộc một trong các dạng sau:
+• Sửa UI component đã có (màu sắc, spacing, typography, icon)
+• Thêm/bớt trường thông tin trên màn hình hiện có
+• Cải thiện UX flow nhỏ (ít hơn 3 màn hình bị ảnh hưởng)
+• Fix lỗi hiển thị / inconsistency được report từ Dev hoặc QA
+• Maintain / update nội dung theo yêu cầu từ Business (copy, banner, label)
+• Tính năng mới nhỏ không làm thay đổi navigation hay information architecture tổng thể
+
+❌ KHÔNG áp dụng SOP này nếu: yêu cầu ảnh hưởng tới hơn 5 màn hình, thay đổi user flow chính, hoặc cần alignment với Business KPI → chuyển sang SOP-DESIGN-02.</div>
+            </div>
+
+            <!-- II. INPUT -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:var(--accent2);">II · THÔNG TIN ĐẦU VÀO (Input Required)</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-input">Trước khi bắt đầu, yêu cầu stakeholder cung cấp đủ 3 thông tin bắt buộc:
+
+[1] Mô tả yêu cầu bằng ngôn ngữ người dùng (Text / Lời nói) ✅ BẮT BUỘC
+[2] Lý do / business context (1–3 câu) ✅ BẮT BUỘC
+[3] Deadline mong muốn (Ngày cụ thể) ✅ BẮT BUỘC
+[4] Acceptance criteria sơ bộ (Bullet points) — nếu có
+[5] Reference / ví dụ tham khảo (Link / ảnh) — nếu có
+
+⚠️ Common Mistake #1: Nhận yêu cầu qua Slack/chat mà không có đủ thông tin trên → thiết kế xong bị yêu cầu sửa nhiều lần. Luôn dùng template intake trước khi bắt đầu.</div>
+            </div>
+
+            <!-- BƯỚC 1 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#3d6b4f;">BƯỚC 1 · Tiếp Nhận &amp; Làm Rõ Yêu Cầu</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-b1">1.1 Ghi nhận yêu cầu vào ticket. Tạo task trên Jira với format: [Tên màn hình] – [Mô tả ngắn thay đổi]
+Ví dụ: Creator Dashboard – Thêm badge "Top Creator" vào profile card
+
+1.2 Dùng AI Agent để phân tích yêu cầu nhanh
+Prompt mẫu:
+"Tôi nhận được yêu cầu: [paste yêu cầu]
+Sản phẩm: Creator Passio – nền tảng affiliate marketing cho KOC/Creator tại SEA.
+Hãy giúp tôi:
+1. Diễn giải lại theo ngôn ngữ UX (user need, not feature request)
+2. Dựa trên bối cảnh của Ecomobi App mobile, xác định thông tin/ câu hỏi cần làm rõ hơn với stakeholder
+3. Liệt kê edge case tiềm ẩn
+4. Ước tính mức độ ảnh hưởng: Low / Medium / High"
+
+1.3 Gửi câu hỏi làm rõ cho stakeholder (nếu cần) — tối đa 2–3 câu hỏi
+
+1.4 Xác nhận scope bằng văn bản:
+"Tôi hiểu yêu cầu là X, sẽ thực hiện Y, không bao gồm Z, deadline là [ngày]."
+
+✅ Điều kiện hoàn thành Bước 1: Có xác nhận bằng text từ stakeholder về scope và deadline.</div>
+            </div>
+
+            <!-- BƯỚC 2 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#3d6b4f;">BƯỚC 2 · Kiểm Tra Context &amp; SSoT</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-b2">2.1 Kiểm tra Design System trên Antigravity
+• Màn hình liên quan đang dùng component gì?
+• Token màu, spacing, typography đang áp dụng chuẩn nào?
+• Có component tương tự đã có sẵn để tái sử dụng không?
+
+2.2 Kiểm tra lịch sử thiết kế trên Figma
+• Màn hình này đã qua bao nhiêu version?
+• Lý do thiết kế cũ là gì? (đọc comment trong Figma nếu có)
+
+2.3 Dùng AI Agent research nhanh nếu cần tham khảo
+Prompt mẫu:
+"Tôi cần thiết kế [component/pattern] cho Creator platform.
+Hãy tìm 3–5 best practice từ TikTok Creator, Shopee Affiliate, Instagram Creator Studio.
+Tập trung vào: [vấn đề cụ thể]."
+
+⚠️ Common Mistake #2: Bỏ qua bước kiểm tra SSoT và tự thiết kế lại từ đầu → tạo ra inconsistency với design system hiện có.
+⚠️ Có thể bỏ qua nếu yêu cầu này cập nhật không đáng kể (Designer tự đánh giá dựa trên bối cảnh)</div>
+            </div>
+
+            <!-- BƯỚC 3 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#3d6b4f;">BƯỚC 3 · Thiết Kế</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-b3">3.1 Tạo frame mới trong Figma
+Đặt tên theo convention: [Tên màn hình] – [Ngày] – [Tên designer]
+Duplicate màn hình gốc sang frame mới — KHÔNG sửa trực tiếp vào màn hình đang production.
+
+3.2 Thiết kế theo thứ tự ưu tiên:
+① Layout &amp; information hierarchy trước
+② Component từ Design System — chỉ tạo mới nếu thực sự không có sẵn
+③ Visual polish (màu sắc, shadow, animation hint) sau cùng
+
+3.3 Self-review checklist trước khi chuyển bước:
+☐ Đúng với scope đã xác nhận ở Bước 1?
+☐ Sử dụng đúng token từ Design System?
+☐ Đã xử lý các edge case đã identify ở Bước 1?
+☐ Empty state, loading state, error state đã có?
+☐ Mobile responsive (nếu applicable)?
+
+⚠️ Bước 3.1 thêm Tên Designer nếu có nhiểu hơn 1 Designer đang chung dự án</div>
+            </div>
+
+            <!-- BƯỚC 4 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#3d6b4f;">BƯỚC 4 · Viết Specs &amp; Handoff</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-b4">4.1 Dùng AI Agent để generate specs nháp
+Prompt mẫu:
+"Tôi vừa hoàn thành thiết kế cho [màn hình/component].
+Thay đổi so với phiên bản cũ: [mô tả thay đổi]
+Hãy viết design specs cho Dev bao gồm:
+1. Behaviour (khi nào hiện, khi nào ẩn, animation nếu có)
+2. Các trạng thái (default, hover, active, disabled, error)
+3. Responsive breakpoints
+Format: bullet points ngắn gọn, ngôn ngữ kỹ thuật"
+
+4.2 Review và chỉnh sửa specs — AI draft, người kiểm tra và điều chỉnh cho đúng thực tế
+
+4.3 Update Antigravity SSoT nếu có component mới hoặc thay đổi token
+
+4.4 Tag Dev + PO/BA trên ticket với link Figma và specs đã hoàn thiện
+
+⚠️ Có thể bỏ qua nếu PRD đã mô tả đầy đủ các case hoặc đã có Protorype</div>
+            </div>
+
+            <!-- BƯỚC 5 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#3d6b4f;">BƯỚC 5 · Review &amp; Sign-off</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-b5">5.1 Dev review — Kiểm tra specs có đủ thông tin để implement không
+
+5.2 Stakeholder / PO review — Xác nhận đúng với yêu cầu ban đầu
+
+5.3 Xử lý feedback:
+• Feedback về scope → quay lại Bước 1 nếu scope thay đổi đáng kể
+• Feedback về visual → sửa trong Bước 3
+• Feedback về specs → sửa trong Bước 4</div>
+            </div>
+
+            <!-- BƯỚC 6 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#3d6b4f;">BƯỚC 6 · Đóng Task &amp; Document</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-b6">☐ Update ticket sang status "Done"
+☐ Ghi Lessons Learned ngắn vào comment ticket nếu gặp vấn đề bất thường
+☐ Cập nhật Antigravity SSoT nếu có thay đổi component</div>
+            </div>
+
+            <!-- DOD -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:var(--green);">DEFINITION OF DONE</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-dod">Task được coi là hoàn thành khi đủ TẤT CẢ các điều kiện sau:
+① Stakeholder đã sign-off bằng văn bản
+② Design specs đã được attach vào ticket
+③ Figma link đã được share cho Dev
+④ Antigravity SSoT đã được update (nếu có thay đổi component)
+⑤ Ticket đã chuyển sang "Done"</div>
+            </div>
+
+            <!-- CHECKLIST -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#555;">CHECKLIST RÚT GỌN — In / Dán Cạnh Màn Hình</div>
+              <div class="sop-field" contenteditable="true" data-key="sop01-checklist" style="font-family:'DM Mono',monospace;font-size:0.78rem;line-height:1.9;">TIẾP NHẬN
+☐ Đủ 3 thông tin bắt buộc (mô tả / lý do / deadline)
+☐ Đã xác nhận scope bằng văn bản với stakeholder
+☐ Đã dùng AI Agent phân tích yêu cầu &amp; edge case
+
+THIẾT KẾ
+☐ Đã kiểm tra Antigravity SSoT trước khi thiết kế
+☐ Duplicate frame cũ, không sửa trực tiếp
+☐ Dùng component từ Design System (nếu đánh giá là cần thiết và không phải vẽ mới)
+☐ Đã xử lý: empty / loading / error state
+
+HANDOFF
+☐ Đã dùng AI Agent generate specs nháp
+☐ Specs đã được review và chỉnh sửa
+☐ Dev + PO/BA đã được tag
+
+DONE
+☐ Sign-off bằng văn bản
+☐ Antigravity SSoT đã update
+☐ Ticket chuyển "Done"</div>
+            </div>
+
+          </div><!-- /sop01-content -->
+
+          <div style="display:flex;gap:1rem;margin-top:1.5rem;align-items:center;">
+            <button onclick="saveSOP('sop01')" style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.7rem 1.6rem;background:var(--ink);color:var(--paper);border:none;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#c84b2f'" onmouseout="this.style.background='var(--ink)'">⬇ Lưu &amp; Tải File</button>
+            <button onclick="resetSOP('sop01')" style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.7rem 1.2rem;background:transparent;color:var(--muted);border:1px solid var(--rule);cursor:pointer;">↺ Reset về mặc định</button>
+            <span id="save-status-sop01" style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--green);display:none;">✓ Đã lưu</span>
+          </div>
+        </div><!-- /scrollable -->
+      </div><!-- /panel-sop01 -->
+
+      <!-- SOP 02 PANEL -->
+      <div id="panel-sop02" style="border:1px solid var(--rule);border-top:none;padding:0;display:none;">
+
+        <!-- Header meta -->
+        <div style="background:var(--cream);padding:1rem 1.5rem;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+          <div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.3rem;">Mã SOP</div><div style="font-size:0.85rem;font-weight:600;">SOP-DESIGN-02</div></div>
+          <div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.3rem;">Thời gian xử lý</div><div style="font-size:0.85rem;">2 – 6 tuần</div></div>
+          <div><div style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.3rem;">Version</div><div style="font-size:0.85rem;">1.0 · H1/2026</div></div>
+        </div>
+
+        <div style="max-height:70vh;overflow-y:auto;padding:1.5rem;">
+
+          <div id="sop02-content">
+
+            <!-- CONTEXT -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:var(--accent2);">I · CONTEXT — Khi Nào Áp Dụng</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-context">Áp dụng khi yêu cầu có ÍT NHẤT 2 trong các đặc điểm sau:
+• Ảnh hưởng tới 5+ màn hình hoặc thay đổi user flow chính
+• Gắn liền với KPI định lượng cụ thể (DAU, retention, GMV, conversion rate…)
+• Cần input từ Business team (pricing, incentive structure, legal, marketing)
+• Cần phối hợp với ít nhất 2 squad Dev khác nhau
+• Là tính năng hoàn toàn mới, chưa có tiền lệ trên sản phẩm
+• Có rủi ro cao nếu thiết kế sai (ảnh hưởng user churn, doanh thu)
+
+Ví dụ điển hình: Tính năng Gamification thu hút 10,000 active Creator trong Q3/2026</div>
+            </div>
+
+            <!-- STAKEHOLDER MAP -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:var(--accent2);">II · CÁC BÊN LIÊN QUAN (Stakeholder Map)</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-stakeholders">UI/UX Designer     → Dẫn dắt design process, output Figma     | Bước: Tất cả
+PO / BA (kiêm)     → Viết User Story, AC, quản lý backlog    | Bước: 1, 2, 4, 6, 7
+Tech Lead          → Đánh giá technical feasibility           | Bước: 2, 5, 6
+Business team      → KPI, business rule, incentive logic      | Bước: 1, 2, 3
+QA                 → Review testability của design            | Bước: 6, 7 (Bỏ qua nếu role QA không được runway trong team)
+Stakeholder / DM   → Approve các milestone chính             | Bước: 2, 5, 7</div>
+            </div>
+
+            <!-- BƯỚC 1 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#5c3d8a;">BƯỚC 1 · Kick-off &amp; Problem Definition</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-b1">1.1 Tổ chức Kick-off meeting với đầy đủ các bên liên quan
+Agenda tối thiểu:
+• Business context: Tại sao tính năng này? KPI gắn liền là gì?
+• User context: Đối tượng người dùng chính là ai?
+• Technical constraints: Có giới hạn kỹ thuật cần biết trước không?
+• Timeline &amp; milestone: Khi nào cần design xong? Khi nào launch?
+
+1.2 Dùng AI Agent chuẩn bị Kick-off
+Prompt mẫu:
+"Tôi sắp thiết kế tính năng [tên] cho Creator Passio. KPI: [KPI cụ thể].
+Hãy giúp tôi:
+1. Danh sách câu hỏi cần hỏi Business team về business rule
+2. Danh sách câu hỏi cần hỏi Tech team về technical constraint
+3. Benchmark cần research trước kick-off (TikTok, Shopify, Lazada Affiliate)
+4. Các rủi ro thiết kế phổ biến với loại tính năng này"
+
+1.3 Viết Problem Statement sau kick-off (template):
+"Chúng tôi nhận thấy [vấn đề] đối với [đối tượng].
+Điều này dẫn đến [hệ quả].
+Chúng tôi tin rằng nếu [giải pháp], chúng tôi sẽ đạt [KPI],
+được đo bằng [metric cụ thể]."
+
+Ví dụ: "Creator active hàng tuần đang ở mức 23% trong 30 ngày đầu → churn cao.
+Nếu thiết kế Gamification với daily missions phù hợp, đạt 10,000 WAU trong Q3/2026,
+đo bằng WAU trên Creator Dashboard."
+
+1.4 Sign-off Problem Statement với stakeholder trước khi đi tiếp.
+
+⚠️ Common Mistake #1: Bắt đầu thiết kế khi chưa có Problem Statement được approve → thiết kế đúng feature nhưng sai problem, phải làm lại.
+⚠️ Có thể làm rõ các thông tin trong bước này ở buổi Discovery với stakeholder</div>
+            </div>
+
+            <!-- BƯỚC 2 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#5c3d8a;">BƯỚC 2 · Research &amp; Discovery</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-b2">2.1 User Research
+Nếu có data sẵn:
+• Phân tích Google Analytics / Firebase: hành vi hiện tại của Creator
+• Review support tickets / feedback liên quan đến vấn đề đang giải quyết
+• Phỏng vấn nhanh 3–5 Creator nếu timeline cho phép
+
+Nếu không có data — Dùng AI Agent:
+Prompt: "Tôi cần thiết kế [tính năng] cho Creator platform tại SEA.
+Xây dựng 2 user persona chính (Creator mới &lt;6 tháng và Creator &gt;1 năm) bao gồm:
+mục tiêu, nỗi đau, hành vi sử dụng app, động lực gamification.
+Liệt kê các assumption quan trọng cần validate trước khi thiết kế.
+Dự đoán top 3 friction points khi user lần đầu dùng tính năng này."
+
+2.2 Competitor &amp; Benchmark Research
+Prompt: "Phân tích cách TikTok Creator Center, Shopee Affiliate, Duolingo
+triển khai [tính năng]. Với mỗi sản phẩm: cơ chế hoạt động, điểm mạnh UX,
+điểm yếu nên tránh, applicability cho Creator Passio (High/Medium/Low)."
+
+2.3 Tổng hợp Research thành Design Brief :
+• Key insights từ user research
+• Benchmark findings
+• Design principles cho tính năng này (3–5 nguyên tắc)
+• Constraints (kỹ thuật, business rule, timeline)
+
+2.4 Review Design Brief với PO/BA và Tech Lead trước khi đi tiếp.</div>
+            </div>
+
+            <!-- BƯỚC 3 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#5c3d8a;">BƯỚC 3 · Information Architecture &amp; User Flow</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-b3">3.1 Xác định toàn bộ màn hình bị ảnh hưởng
+
+3.2 Vẽ User Flow tổng thể (Figma FigJam / Miro)
+Flow cần thể hiện:
+• Entry points (từ đâu user có thể truy cập)
+• Happy path (luồng lý tưởng)
+• Alternative paths
+• Exit points
+• Error states chính
+
+3.3 Dùng AI Agent để review User Flow
+Prompt: "Tôi đã thiết kế user flow cho [tính năng]: [mô tả từng bước]
+KPI cần đạt: [KPI]. Đối tượng: [mô tả user].
+Chỉ ra: 
+① Bước có friction cao có thể làm user drop off
+② Edge case chưa được xử lý
+③ Cải tiến để tăng completion rate
+④ Flow này có đủ điều kiện để đo được [KPI] không?"
+
+3.4 Review User Flow với TOÀN BỘ stakeholders — đây là milestone quan trọng, cần approval trước khi thiết kế visual.
+
+⚠️ Common Mistake #2: Bỏ qua review flow với Business team → thiết kế đẹp nhưng business rule bị sai.</div>
+            </div>
+
+            <!-- BƯỚC 4 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#5c3d8a;">BƯỚC 4 · Wireframe &amp; Concept Design</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-b4">4.1 Wireframe low-fidelity cho toàn bộ màn hình P1
+• Tập trung vào layout và information hierarchy, chưa quan tâm visual
+• Nhanh — mỗi màn hình không quá 30 phút
+• Làm ít nhất 2 phương án cho các màn hình có nhiều lựa chọn thiết kế
+
+4.2 Self-review từng wireframe:
+• User có hiểu được mục đích màn hình trong 5 giây đầu không?
+• Có quá nhiều thông tin trên một màn hình không?
+• Call-to-action có rõ ràng không?
+
+4.3 Dùng AI Agent evaluate wireframe concept
+Prompt: "Tôi có 2 concept cho màn hình [tên]:
+Concept A: [mô tả layout] | Concept B: [mô tả layout]
+Context: User goal = [mục tiêu], KPI = [KPI].
+Đánh giá theo: Clarity, Motivation, Scalability, Technical complexity.
+Kết luận: nên chọn concept nào và tại sao?"
+
+4.4 Concept review với PO/BA và Tech Lead:
+• PO/BA: Wireframe cover đủ các User Story chưa?
+• Tech Lead: Feasibility check — cái gì khó làm, cần thay đổi gì?</div>
+            </div>
+
+            <!-- BƯỚC 5 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#5c3d8a;">BƯỚC 5 · High-Fidelity Design</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-b5">5.1 Thiết kế high-fidelity theo thứ tự P1 → P2
+Checklist từng màn hình:
+☐ Đúng Design System (token, component, spacing)
+☐ Đủ states: default, loading, empty, error, success
+☐ Responsive version (mobile + desktop nếu cần)
+☐ Edge cases đã identify từ Bước 2
+☐ Accessibility: contrast ratio, touch target size ≥ 44px
+
+5.2 Prototype interactive cho happy path (Có thể bỏ qua nếu cần đáp ứng UI nhanh)
+
+5.3 Design QA — self-review checklist toàn bộ:
+☐ Consistency: tất cả màn hình dùng đúng component từ SSoT
+☐ Completeness: đủ tất cả states (empty/loading/error/success)
+☐ Flow: prototype chạy được hết happy path
+☐ KPI alignment: design có cơ chế đo được KPI đã đặt ra không? (Cần phối hợp với Dev lead để lên event tracking)
+☐ Business rules: đã reflect đúng toàn bộ business rules từ Business team
+☐ Technical: không có element nào quá khó implement mà không báo trước
+
+5.4 Stakeholder review toàn bộ high-fidelity
+Walk through prototype → giải thích rationale → ghi nhận feedback có cấu trúc.
+
+⚠️ Common Mistake #3: Present design mà không giải thích rationale → stakeholder phản hồi theo cảm tính. Luôn dẫn dắt: "Quyết định này nhằm giải quyết [vấn đề], dựa trên [insight], kỳ vọng [kết quả]."</div>
+            </div>
+
+            <!-- BƯỚC 6 -->
+            <!-- BƯỚC 7 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#5c3d8a;">BƯỚC 6 · Handoff, UAT &amp; Launch Support</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-b7">7.1 Design Handoff
+☐ Figma file organized: layers đặt tên rõ, components linked to Design System
+☐ Specs document attached vào mỗi Jira ticket tương ứng
+☐ Antigravity SSoT đã update với components mới
+
+7.2 Design Review trong Sprint
+• Tham gia daily standup hoặc có kênh liên lạc nhanh với Dev
+• Review implementation sau khi Dev hoàn thành từng màn hình (không đợi UAT)
+• Document design debt nếu có trade-off để kịp deadline
+
+7.3 UAT — Dùng AI Agent chuẩn bị test plan
+Prompt: "Tôi sắp thực hiện UAT cho [tính năng]. KPI: [KPI].
+User Stories: [list].
+Tạo UAT test plan: ① Test scenarios theo từng user flow
+② Test cases cho edge cases ③ Performance scenarios
+④ Regression test checklist (tính năng cũ bị ảnh hưởng không?)"
+
+7.4 Launch Support
+• Yêu cầu Marketing chuẩn bị design assets nếu cần thiết (banner, pop-ip, in-app notification,...)
+• Monitor user behavior 48–72h sau launch (nếu có access analytics)
+• Document những gì đúng/sai để cải thiện iteration tiếp theo</div>
+            </div>
+
+            <!-- BƯỚC 8 -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#5c3d8a;">BƯỚC 7 · Retrospective &amp; Documentation</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-b8">8.1 Post-launch Retrospective (2–4 tuần sau launch)
+• KPI thực tế đạt bao nhiêu % so với target?
+• User behavior có khác với assumption trong design không?
+• Phần nào của design hoạt động tốt? Phần nào cần cải thiện?
+
+8.2 Update SSoT và Design System
+Nếu tính năng tạo ra pattern mới → document thành component trong Design System
+
+8.3 Update SOP này nếu phát hiện bước nào cần điều chỉnh</div>
+            </div>
+
+            <!-- DOD -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:var(--green);">DEFINITION OF DONE</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-dod">Tính năng được coi là hoàn thành khi đủ TẤT CẢ các điều kiện sau:
+① Problem Statement đã được approve bởi stakeholder
+② User Flow đã được approve bởi PO/BA + Business
+③ Design specs đã được attach vào ticket
+④ Figma link đã được share cho Dev
+⑤ Antigravity SSoT đã được update (nếu có thay đổi component)
+⑥ Ticket UIUX Design đã chuyển sang "Done"
+⑦ UAT đã pass, không có blocking issue
+⑧ KPI measurement plan đã được setup (analytics tracking)</div>
+            </div>
+
+            <!-- CHECKLIST -->
+            <div class="sop-block">
+              <div class="sop-block-label" style="background:#555;">CHECKLIST RÚT GỌN — Large Feature</div>
+              <div class="sop-field" contenteditable="true" data-key="sop02-checklist" style="font-family:'DM Mono',monospace;font-size:0.78rem;line-height:1.9;">PHASE 1 — DEFINE
+☐ AI Agent: chuẩn bị câu hỏi &amp; benchmark research
+☐ Problem Statement viết xong và được approve
+
+PHASE 2 — RESEARCH
+☐ User research / data analysis hoàn thành
+☐ AI Agent: competitor research &amp; user persona
+
+PHASE 3 — ARCHITECTURE
+☐ Danh sách màn hình bị ảnh hưởng đã map
+☐ User Flow đã vẽ và AI Agent đã review
+☐ User Flow đã được approve bởi PO/ Stakeholders
+
+PHASE 4 — WIREFRAME
+☐ Wireframe low-fi cho tất cả P1 screens
+☐ AI Agent: evaluate concepts
+☐ Concept review với PO/BA + Tech Lead
+
+PHASE 5 — HIGH-FI
+☐ Design đủ states cho tất cả P1 screens
+☐ Interactive prototype cho happy path
+☐ Stakeholder approve high-fidelity
+
+PHASE 6 — HANDOFF &amp; LAUNCH
+☐ Figma organized, specs attached vào tickets
+☐ SSoT Antigravity đã update
+☐ Q&amp;A session với Dev xong
+☐ UAT passed, không có blocking issue
+☐ Analytics tracking đã setup
+
+PHASE 7 — RETRO
+☐ Post-launch review so sánh với KPI target
+☐ Lessons Learned đã document
+☐ SOP updated nếu cần</div>
+            </div>
+
+          </div><!-- /sop02-content -->
+
+          <div style="display:flex;gap:1rem;margin-top:1.5rem;align-items:center;">
+            <button onclick="saveSOP('sop02')" style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.7rem 1.6rem;background:var(--accent2);color:var(--paper);border:none;cursor:pointer;transition:background 0.2s;">⬇ Lưu &amp; Tải File</button>
+            <button onclick="resetSOP('sop02')" style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.7rem 1.2rem;background:transparent;color:var(--muted);border:1px solid var(--rule);cursor:pointer;">↺ Reset về mặc định</button>
+            <span id="save-status-sop02" style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--green);display:none;">✓ Đã lưu</span>
+          </div>
+        </div><!-- /scrollable -->
+      </div><!-- /panel-sop02 -->
+
+    </div><!-- /sop-library -->
+
+    <!-- Competency -->
+    <div class="r-section">
+      <div class="r-section-title">Năng Lực Thể Hiện (theo khung năng lực Ecomobi G4)</div>
+      <div class="lg">
+        <div class="lc g"><div class="lc-label">Value Oriented · Quality</div><div class="lc-text">Chủ động xây dựng hệ thống đảm bảo chất lượng không phụ thuộc cá nhân — hướng đến output bền vững cho tổ chức.</div></div>
+        <div class="lc"><div class="lc-label">Set Goals &amp; Plan</div><div class="lc-text">Phân tích và ưu tiên hoá 12 tác vụ theo tần suất và impact, lên kế hoạch thực hiện theo từng sprint có deadline cụ thể.</div></div>
+        <div class="lc b"><div class="lc-label">Coaching · Knowledge Sharing</div><div class="lc-text">SOPs được thiết kế để ai cũng có thể follow — không chỉ là tài liệu cá nhân mà là công cụ onboarding và knowledge transfer thực sự.</div></div>
+        <div class="lc p"><div class="lc-label">Lessons Learned</div><div class="lc-text">Viết SOP tốt đòi hỏi hiểu rõ "tại sao" trước khi viết "như thế nào" — context và nguyên tắc quan trọng hơn danh sách bước thực hiện.</div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="r-footer">
+    <button class="btn-outline" onclick="showPage('obj02')">← OBJ 02</button>
+    <button class="btn-primary" onclick="showPage('main')">Về tổng quan →</button>
+  </div>
+</div>
+
+<script>
+  function showPage(id) {
+    // Save current scroll position of main page before leaving
+    if (id !== 'main') {
+      const mainPage = document.getElementById('page-main');
+      if (mainPage && mainPage.classList.contains('active')) {
+        sessionStorage.setItem('main-scroll', window.scrollY);
+      }
+    }
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (id === 'main') {
+      // Restore saved scroll position
+      const savedY = sessionStorage.getItem('main-scroll');
+      if (savedY) {
+        requestAnimationFrame(() => window.scrollTo({ top: parseInt(savedY), behavior: 'instant' }));
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    setTimeout(triggerReveals, 80);
+  }
+
+  function navTo(pageId, sectionId) {
+    const currentPage = document.querySelector('.page.active');
+    const isAlreadyMain = currentPage && currentPage.id === 'page-main';
+    if (!isAlreadyMain) {
+      // save scroll before leaving sub-page
+      sessionStorage.removeItem('main-scroll'); // navigating intentionally, go to section
+      showPage(pageId);
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 120);
+    } else {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  function triggerReveals() {
+    const active = document.querySelector('.page.active');
+    if (!active) return;
+    const items = active.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          entry.target.style.transitionDelay = (i % 3) * 0.08 + 's';
+          entry.target.classList.add('visible');
+          entry.target.querySelectorAll('.progress-fill,.skill-fill').forEach(b => b.classList.add('animated'));
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    items.forEach(el => obs.observe(el));
+
+    active.querySelectorAll('.progress-fill,.skill-fill').forEach(bar => {
+      const bo = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { setTimeout(() => bar.classList.add('animated'), 300); bo.unobserve(e.target); }
+        });
+      }, { threshold: 0.1 });
+      bo.observe(bar);
+    });
+  }
+
+  // ── SOP TAB SWITCHING ──
+  function switchSOP(id) {
+    ['sop01','sop02'].forEach(s => {
+      document.getElementById('panel-' + s).style.display = s === id ? 'block' : 'none';
+      const tab = document.getElementById('tab-' + s);
+      if (tab) {
+        tab.style.background = s === id ? 'var(--ink)' : 'var(--cream)';
+        tab.style.color = s === id ? 'var(--paper)' : 'var(--muted)';
+      }
+    });
+  }
+
+  // ── SOP SAVE ──
+  const SOP_DEFAULTS = {};
+
+  function saveSOP(sopId) {
+    const status = document.getElementById('save-status-' + sopId);
+    if (status) { status.innerText = '⏳ Đang tạo file...'; status.style.display = 'inline'; }
+    setTimeout(() => {
+      _downloadHTML();
+      if (status) {
+        status.innerText = '✓ File đã tải về';
+        setTimeout(() => { status.style.display = 'none'; status.innerText = '✓ Đã lưu'; }, 3000);
+      }
+    }, 100);
+  }
+
+  function resetSOP(sopId) {
+    if (!confirm('Reset SOP về nội dung mặc định? Các chỉnh sửa sẽ bị mất.')) return;
+    document.querySelectorAll('#panel-' + sopId + ' .sop-field').forEach(el => {
+      const key = el.dataset.key;
+      if (SOP_DEFAULTS[key] !== undefined) el.innerText = SOP_DEFAULTS[key];
+    });
+  }
+
+  function loadSavedSOPs() {
+    document.querySelectorAll('.sop-field[data-key]').forEach(el => {
+      SOP_DEFAULTS[el.dataset.key] = el.innerText;
+    });
+  }
+
+  // ── EXPORT (SOP only) ──
+  function _downloadHTML() {
+    const doctype = '<!DOCTYPE html>\n';
+    const html = document.documentElement.outerHTML;
+    const blob = new Blob([doctype + html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'HuongDBT_Portfolio_' + new Date().toISOString().slice(0,10) + '.html';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function exportPortfolio() { _downloadHTML(); }
+
+  loadSavedSOPs();
+  triggerReveals();
+</script>
+</body>
+</html>
